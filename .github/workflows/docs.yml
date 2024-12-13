@@ -43,7 +43,7 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: ".lake/"
-          key: "${{ runner.os }}-lake-${{ hashFiles('lake-manifest.json') }}"
+          key: "${{ runner.os }}-lake-${{ hashFiles('lake-manifest.json') }}-k0"
       - name: "Build Docs"
         run: just build-docs
       - name: "Save Lake Cache"
