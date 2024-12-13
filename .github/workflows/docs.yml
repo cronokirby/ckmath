@@ -1,0 +1,59 @@
+# Cribbed from https://github.com/leanprover-community/lean4-samples/blob/b6270e5b96d8aa62a932ca22c2e7e053a53951ec/.github/workflows/ci.yml
+
+# Type check code, and build documentation.
+name: "Deploy Docs"
+# We want the workflow to run whenever there's changes on main.
+on:
+  push:
+    branches: ["main"]
+# Needed to upload artifacts
+permissions:
+  id-token: write
+  pages: write
+jobs:
+  deploy-docs:
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: "Checkout"
+        uses: "actions/checkout@v4"
+      - name: "Install Devtools"
+        run: |
+          wget -qO - 'https://proget.makedeb.org/debian-feeds/prebuilt-mpr.pub' | gpg --dearmor | sudo tee /usr/share/keyrings/prebuilt-mpr-archive-keyring.gpg 1> /dev/null
+          echo "deb [arch=all,$(dpkg --print-architecture) signed-by=/usr/share/keyrings/prebuilt-mpr-archive-keyring.gpg] https://proget.makedeb.org prebuilt-mpr $(lsb_release -cs)" | sudo tee /etc/apt/sources.list.d/prebuilt-mpr.list
+          sudo apt update
+          sudo apt-get install -y just
+      - name: "Install Lean"
+        run: |
+          curl -O --location https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh
+          chmod u+x elan-init.sh
+          ./elan-init.sh -y --default-toolchain leanprover/lean4:nightly
+          echo "Adding location $HOME/.elan/bin to PATH..."
+          echo "$HOME/.elan/bin" >> $GITHUB_PATH
+      - name: "Lean is Installed"
+        run: |
+          elan --version
+          lean --version
+          lake --version
+      - name: "Restore Lake Cache"
+        id: cache-lake-restore
+        uses: actions/cache/restore@v4
+        with:
+          path: ".lake/"
+          key: "${{ runner.os }}-lake-${{ hashFiles('lake-manifest.json') }}"
+      - name: "Build Docs"
+        run: just build-docs
+      - name: "Save Lake Cache"
+        id: cache-lake-save
+        uses: actions/cache/save@v4
+        with:
+          path: ".lake/"
+          key: "${{ steps.cache-lake-restore.outputs.cache-primary-key }}"
+      # https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages
+      - name: "Setup Pages"
+        uses: "actions/configure-pages@v5"
+      - name: "Upload artifact"
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ".lake/build/doc/"
+      - name: "Deploy to Github Pages"
+        uses: "actions/deploy-pages@v4"
