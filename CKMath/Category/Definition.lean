@@ -10,9 +10,9 @@ This does not yet contain any properties about these data: `Category O` has them
 Small categories will have `O : Type`, and large categories will have a large `O`.
 For example: `Type : Type 1`.
 -/
-class Category.Struct (O : Type u) where
+class Category.Struct (O : Sort u) where
   /-- Each pair of objects gets its own sort of morphism. -/
-  Mor : O → O → Type v
+  Mor : O → O → Sort v
   /-- Each such sort has a distinguished identity morphism. -/
   id : Mor A A
   /-- We can compose morphisms to link many objects together. -/
@@ -22,7 +22,7 @@ infixr:80 " ≫ " => Category.Struct.comp
 
 /-- A category has the structure of a category—objects, morphisms, identities, composition—and laws.
 -/
-class Category (O : Type u) extends Category.Struct O where
+class Category (O : Sort u) extends Category.Struct O where
   /-- The identity does nothing before a morphism. -/
   pre_id (f : Mor A B) : id ≫ f = f
   /-- The identity does nothing after a morphism-/
