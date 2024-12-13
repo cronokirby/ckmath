@@ -1,1 +1,1 @@
-import CKMath.Basic
+import CKMath.Category.Basic
