@@ -6,6 +6,10 @@ name: "Deploy Docs"
 on:
   push:
     branches: ["main"]
+# Cancel any previous instances of the job
+concurency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
 # Needed to upload artifacts
 permissions:
   id-token: write
