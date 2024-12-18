@@ -24,6 +24,28 @@ infix:100 " ≅ " => Isomorphism
 
 namespace Isomorphism
 
+def out_eq_then_inv_eq {A B : O} {f g : A ≅ B} : f.out = g.out → f.inv = g.inv := by
+  intro out_eq
+  have h0 : g.inv ≫ f.out = g.inv ≫ g.out := by
+    congr
+  rw [g.pre_inv] at h0
+  have h1 : (g.inv ≫ f.out) ≫ f.inv = 𝓒.id ≫ f.inv := by
+    congr
+  rw [←𝓒.comp_assoc, f.post_inv, 𝓒.post_id, 𝓒.pre_id] at h1
+  exact Eq.symm h1
+
+@[simp]
+def eq_iff_out_eq {A B : O} {f g : A ≅ B} : f = g ↔ f.out = g.out := by
+  apply Iff.intro
+  . intro h
+    rw [h]
+  . intro h
+    suffices f.inv = g.inv by
+      ext
+      exact h
+      exact this
+    exact out_eq_then_inv_eq h
+
 def id {A : O}: A ≅ A := {
   out := 𝓒.id,
   inv := 𝓒.id,
