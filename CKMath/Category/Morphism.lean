@@ -1,8 +1,5 @@
 import CKMath.Category.Definition
 
-structure OfIso (α) where
-  unOfIso : α
-
 namespace Category
 
 variable [𝓒 : Category O]
@@ -20,11 +17,17 @@ structure Isomorphism (A B) where
   pre_inv : inv ≫ out = 𝓒.id
   post_inv : out ≫ inv = 𝓒.id
 
+/-- Notation to be able to write `A ≅ B` instead of `Isomorphism A B`-/
 infix:100 " ≅ " => Isomorphism
 
 namespace Isomorphism
 
-def out_eq_then_inv_eq {A B : O} {f g : A ≅ B} : f.out = g.out → f.inv = g.inv := by
+/-- If two isomorphisms have the same main function, their inverses must also match.
+
+This is a useful technical lemma, since we can then use it to prove identities about isomorphisms
+without having to prove the same result for both the carrier and the inverse.
+-/
+theorem out_eq_then_inv_eq {A B : O} {f g : A ≅ B} : f.out = g.out → f.inv = g.inv := by
   intro out_eq
   have h0 : g.inv ≫ f.out = g.inv ≫ g.out := by
     congr
@@ -34,8 +37,12 @@ def out_eq_then_inv_eq {A B : O} {f g : A ≅ B} : f.out = g.out → f.inv = g.i
   rw [←𝓒.comp_assoc, f.post_inv, 𝓒.post_id, 𝓒.pre_id] at h1
   exact Eq.symm h1
 
+/-- To prove that two isomorphisms are equal, it suffices to show their carriers are equal.
+
+This is a key simplifier for equalities of isomorphisims.
+-/
 @[simp]
-def eq_iff_out_eq {A B : O} {f g : A ≅ B} : f = g ↔ f.out = g.out := by
+theorem eq_iff_out_eq {A B : O} {f g : A ≅ B} : f = g ↔ f.out = g.out := by
   apply Iff.intro
   . intro h
     rw [h]
@@ -45,15 +52,6 @@ def eq_iff_out_eq {A B : O} {f g : A ≅ B} : f = g ↔ f.out = g.out := by
       exact h
       exact this
     exact out_eq_then_inv_eq h
-
-def id {A : O}: A ≅ A := {
-  out := 𝓒.id,
-  inv := 𝓒.id,
-  pre_inv := by
-    simp only [𝓒.post_id]
-  post_inv := by
-    simp only [𝓒.post_id]
-}
 
 /-- An isomorphism can be flipped, and considered in the other direction. -/
 def flip {A B : O} (i : A ≅ B) : B ≅ A :=
@@ -77,34 +75,61 @@ def comp {A B C : O} (i0 : A ≅ B) (i1 : B ≅ C) : A ≅ C := {
       _ = _ := by simp only [i0.pre_inv, i1.pre_inv, 𝓒.pre_id]
 }
 
+/-- When showing that the composition of isomorphisms -/
 @[simp]
-theorem comp_lemma
+theorem comp_out_eq_comp
   {A B C : O}
   {F : A ≅ B}
   {G : B ≅ C}
-  {H : A ≅ C}
-  : F.comp G = H ↔ F.out ≫ G.out = H.out := eq_iff_out_eq
+  : (F.comp G).out = F.out ≫ G.out := by rfl
+
+/-- Any object is isomorphic to itself, as demonstrated by the identity function. -/
+def id {A : O}: A ≅ A := {
+  out := 𝓒.id,
+  inv := 𝓒.id,
+  pre_inv := by
+    simp only [𝓒.post_id]
+  post_inv := by
+    simp only [𝓒.post_id]
+}
+
+/-- Simplifying the identity isomorphism to the identity morphism.
+
+This is useful because proving identities about isomorphisms boils down
+to proving identities about the carrier functions.
+-/
+@[simp]
+theorem id_out_eq_id {A : O} : (@id _ _ A).out = 𝓒.id := by rfl
 
 end Isomorphism
 
+/-- A wrapper structure to define the category of isomorphisms. -/
+structure OfIso (α) where
+  unOfIso : α
+
+/-- Isomorphisms form a category. -/
 def Iso : (Category (OfIso O)) where
   Mor (A B) := A.unOfIso ≅ B.unOfIso
   id := Isomorphism.id
   comp := Isomorphism.comp
   pre_id := by
-    intro _ _ f
-    apply Isomorphism.comp_lemma.mpr
-    change 𝓒.id ≫ f.out = f.out
-    simp only [𝓒.pre_id]
+    intros
+    simp only [
+      Isomorphism.comp_out_eq_comp,
+      Isomorphism.eq_iff_out_eq,
+      Isomorphism.id_out_eq_id,
+      𝓒.pre_id
+    ]
   post_id := by
-    intro _ _ f
-    apply Isomorphism.comp_lemma.mpr
-    change f.out ≫ 𝓒.id = f.out
-    simp only [𝓒.post_id]
+    intros
+    simp only [
+      Isomorphism.comp_out_eq_comp,
+      Isomorphism.eq_iff_out_eq,
+      Isomorphism.id_out_eq_id,
+      𝓒.post_id
+    ]
   comp_assoc := by
-    intro _ _ _ _ f g h
-    apply Isomorphism.comp_lemma.mpr
-    change f.out ≫ (g.out ≫ h.out) = (f.out ≫ g.out) ≫ h.out
-    simp only [𝓒.comp_assoc]
+    intros
+    simp only [Isomorphism.comp_out_eq_comp, Isomorphism.eq_iff_out_eq, 𝓒.comp_assoc]
 
 end Category
