@@ -103,7 +103,7 @@ def Iso : (Category (OfIso O)) where
     simp only [𝓒.post_id]
   comp_assoc := by
     intro _ _ _ _ f g h
-    simp only [Isomorphism.comp_lemma]
+    apply Isomorphism.comp_lemma.mpr
     change f.out ≫ (g.out ≫ h.out) = (f.out ≫ g.out) ≫ h.out
     simp only [𝓒.comp_assoc]
 
