@@ -1,4 +1,5 @@
 import CKMath.Category.Definition
+import CKMath.Category.Elementary
 
 namespace Category
 
@@ -102,10 +103,15 @@ to proving identities about the carrier functions.
 theorem id_out_eq_id {A : O} : (@id _ _ A).out = 𝓒.id := by rfl
 
 end Isomorphism
+end Category
 
 /-- A wrapper structure to define the category of isomorphisms. -/
 structure OfIso (α) where
   unOfIso : α
+
+namespace Category
+
+variable [𝓒 : Category O]
 
 /-- Isomorphisms form a category. -/
 def Iso : (Category (OfIso O)) where
@@ -131,5 +137,26 @@ def Iso : (Category (OfIso O)) where
   comp_assoc := by
     intros
     simp only [Isomorphism.eq_iff_out_eq, Isomorphism.comp_out_eq_comp, comp_assoc_simp]
+
+end Category
+
+namespace Category
+
+variable [𝓒 : Category O]
+
+/-- The property of being a monomorphism, i.e. preserving equalities by post-composition. -/
+def is_mono {B C : O} (f : 𝓒.Mor B C) : Prop :=
+  ∀ {A : O} {g h : 𝓒.Mor A B}, g ≫ f = h ≫ f → g = h
+
+/-- The property of being an epimorphism, i.e. being a monomorphism in the opposite category. -/
+def is_epi {A B : O} (f : 𝓒.Mor A B) : Prop :=
+  @is_mono (Opposite O) 𝓒.Op (Opposite.mk B) (Opposite.mk A) f
+
+/-- The claass of functions that are monomorphisms -/
+class Mono (f : 𝓒.Mor A B) where
+  w_mono : 𝓒.is_mono f
+
+class Epi (f : 𝓒.Mor A B) where
+  w_epi : 𝓒.is_epi f
 
 end Category
