@@ -118,18 +118,18 @@ def Iso : (Category (OfIso O)) where
       Isomorphism.comp_out_eq_comp,
       Isomorphism.eq_iff_out_eq,
       Isomorphism.id_out_eq_id,
-      𝓒.pre_id
+      pre_id_simp
     ]
   post_id := by
     intros
     simp only [
-      Isomorphism.comp_out_eq_comp,
       Isomorphism.eq_iff_out_eq,
+      Isomorphism.comp_out_eq_comp,
       Isomorphism.id_out_eq_id,
-      𝓒.post_id
+      post_id_simp
     ]
   comp_assoc := by
     intros
-    simp only [Isomorphism.comp_out_eq_comp, Isomorphism.eq_iff_out_eq, 𝓒.comp_assoc]
+    simp only [Isomorphism.eq_iff_out_eq, Isomorphism.comp_out_eq_comp, comp_assoc_simp]
 
 end Category
