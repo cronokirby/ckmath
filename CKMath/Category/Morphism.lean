@@ -77,17 +77,13 @@ def comp {A B C : O} (i0 : A ≅ B) (i1 : B ≅ C) : A ≅ C := {
       _ = _ := by simp only [i0.pre_inv, i1.pre_inv, 𝓒.pre_id]
 }
 
+@[simp]
 theorem comp_lemma
   {A B C : O}
-  (F : A ≅ B)
-  (G : B ≅ C)
-  (H : A ≅ C)
-  (h1 : F.out ≫ G.out = H.out)
-  (h2 : G.inv ≫ F.inv = H.inv) :
-  F.comp G = H := by
-    ext
-    . exact h1
-    . exact h2
+  {F : A ≅ B}
+  {G : B ≅ C}
+  {H : A ≅ C}
+  : F.comp G = H ↔ F.out ≫ G.out = H.out := eq_iff_out_eq
 
 end Isomorphism
 
@@ -97,26 +93,18 @@ def Iso : (Category (OfIso O)) where
   comp := Isomorphism.comp
   pre_id := by
     intro _ _ f
-    apply Isomorphism.comp_lemma
-    . change 𝓒.comp 𝓒.id f.out = f.out
-      exact 𝓒.pre_id f.out
-    . change 𝓒.comp f.inv 𝓒.id = f.inv
-      exact 𝓒.post_id f.inv
+    apply Isomorphism.comp_lemma.mpr
+    change 𝓒.id ≫ f.out = f.out
+    simp only [𝓒.pre_id]
   post_id := by
     intro _ _ f
-    apply Isomorphism.comp_lemma
-    . change 𝓒.comp f.out 𝓒.id = f.out
-      exact 𝓒.post_id f.out
-    . change 𝓒.comp 𝓒.id f.inv = f.inv
-      exact 𝓒.pre_id f.inv
+    apply Isomorphism.comp_lemma.mpr
+    change f.out ≫ 𝓒.id = f.out
+    simp only [𝓒.post_id]
   comp_assoc := by
     intro _ _ _ _ f g h
-    change Isomorphism.comp f (Isomorphism.comp g h) =
-           Isomorphism.comp (Isomorphism.comp f g) h
-    ext
-    . change f.out ≫ (g.out ≫ h.out) = (f.out ≫ g.out) ≫ h.out
-      simp only [𝓒.comp_assoc]
-    . change (h.inv ≫ g.inv) ≫ f.inv = h.inv ≫ (g.inv ≫ f.inv)
-      simp only [𝓒.comp_assoc]
+    simp only [Isomorphism.comp_lemma]
+    change f.out ≫ (g.out ≫ h.out) = (f.out ≫ g.out) ≫ h.out
+    simp only [𝓒.comp_assoc]
 
 end Category
