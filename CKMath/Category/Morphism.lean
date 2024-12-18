@@ -15,18 +15,18 @@ and not on the essence of the object we're studying.
 -/
 @[ext]
 structure Isomorphism (A B) where
-  f : 𝓒.Mor A B
-  f_inv : 𝓒.Mor B A
-  pre_inv : f_inv ≫ f = 𝓒.id
-  post_inv : f ≫ f_inv = 𝓒.id
+  out : 𝓒.Mor A B
+  inv : 𝓒.Mor B A
+  pre_inv : inv ≫ out = 𝓒.id
+  post_inv : out ≫ inv = 𝓒.id
 
 infix:100 " ≅ " => Isomorphism
 
 namespace Isomorphism
 
 def id {A : O}: A ≅ A := {
-  f := 𝓒.id,
-  f_inv := 𝓒.id,
+  out := 𝓒.id,
+  inv := 𝓒.id,
   pre_inv := by
     simp only [𝓒.post_id]
   post_inv := by
@@ -35,7 +35,7 @@ def id {A : O}: A ≅ A := {
 
 /-- An isomorphism can be flipped, and considered in the other direction. -/
 def flip {A B : O} (i : A ≅ B) : B ≅ A :=
-  ⟨i.f_inv, i.f, i.post_inv, i.pre_inv⟩
+  ⟨i.inv, i.out, i.post_inv, i.pre_inv⟩
 
 /-- Flipping an isomorphism twice produces the original isomorphism. -/
 @[simp]
@@ -43,15 +43,15 @@ def flip_flip_eq {A B : O} (i : A ≅ B) : i.flip.flip = i := rfl
 
 /-- Isomorphisms can be composed together. -/
 def comp {A B C : O} (i0 : A ≅ B) (i1 : B ≅ C) : A ≅ C := {
-  f := i0.f ≫ i1.f,
-  f_inv := i1.f_inv ≫ i0.f_inv,
+  out := i0.out ≫ i1.out,
+  inv := i1.inv ≫ i0.inv,
   post_inv := by
     calc
-      _ = i0.f ≫ (i1.f ≫ i1.f_inv) ≫ i0.f_inv := by simp only [𝓒.comp_assoc]
+      _ = i0.out ≫ (i1.out ≫ i1.inv) ≫ i0.inv := by simp only [𝓒.comp_assoc]
       _ = _ := by simp only [i0.post_inv, i1.post_inv, 𝓒.pre_id]
   pre_inv := by
       calc
-      _ = i1.f_inv ≫ (i0.f_inv ≫ i0.f) ≫ i1.f := by simp only [𝓒.comp_assoc]
+      _ = i1.inv ≫ (i0.inv ≫ i0.out) ≫ i1.out := by simp only [𝓒.comp_assoc]
       _ = _ := by simp only [i0.pre_inv, i1.pre_inv, 𝓒.pre_id]
 }
 
@@ -60,8 +60,8 @@ theorem comp_lemma
   (F : A ≅ B)
   (G : B ≅ C)
   (H : A ≅ C)
-  (h1 : F.f ≫ G.f = H.f)
-  (h2 : G.f_inv ≫ F.f_inv = H.f_inv) :
+  (h1 : F.out ≫ G.out = H.out)
+  (h2 : G.inv ≫ F.inv = H.inv) :
   F.comp G = H := by
     ext
     . exact h1
@@ -76,25 +76,25 @@ def Iso : (Category (OfIso O)) where
   pre_id := by
     intro _ _ f
     apply Isomorphism.comp_lemma
-    . change 𝓒.comp 𝓒.id f.f = f.f
-      exact 𝓒.pre_id f.f
-    . change 𝓒.comp f.f_inv 𝓒.id = f.f_inv
-      exact 𝓒.post_id f.f_inv
+    . change 𝓒.comp 𝓒.id f.out = f.out
+      exact 𝓒.pre_id f.out
+    . change 𝓒.comp f.inv 𝓒.id = f.inv
+      exact 𝓒.post_id f.inv
   post_id := by
     intro _ _ f
     apply Isomorphism.comp_lemma
-    . change 𝓒.comp f.f 𝓒.id = f.f
-      exact 𝓒.post_id f.f
-    . change 𝓒.comp 𝓒.id f.f_inv = f.f_inv
-      exact 𝓒.pre_id f.f_inv
+    . change 𝓒.comp f.out 𝓒.id = f.out
+      exact 𝓒.post_id f.out
+    . change 𝓒.comp 𝓒.id f.inv = f.inv
+      exact 𝓒.pre_id f.inv
   comp_assoc := by
     intro _ _ _ _ f g h
     change Isomorphism.comp f (Isomorphism.comp g h) =
            Isomorphism.comp (Isomorphism.comp f g) h
     ext
-    . change f.f ≫ (g.f ≫ h.f) = (f.f ≫ g.f) ≫ h.f
+    . change f.out ≫ (g.out ≫ h.out) = (f.out ≫ g.out) ≫ h.out
       simp only [𝓒.comp_assoc]
-    . change (h.f_inv ≫ g.f_inv) ≫ f.f_inv = h.f_inv ≫ (g.f_inv ≫ f.f_inv)
+    . change (h.inv ≫ g.inv) ≫ f.inv = h.inv ≫ (g.inv ≫ f.inv)
       simp only [𝓒.comp_assoc]
 
 end Category
