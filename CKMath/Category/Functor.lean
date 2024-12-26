@@ -33,6 +33,13 @@ def map_iso (F : Functor C D) (i : A ≅ B) : 𝓓.Isomorphism (F.obj A) (F.obj 
     exact F.map_id
 }
 
+structure PreMorphism (F G : Functor C D) where
+  on (c : C) : 𝓓.Mor (F.obj c) (G.obj c)
+
+/-- Un morphisme de foncteurs. -/
+structure Morphism (F G) extends @PreMorphism C D _ _ F G where
+  natural : ∀ f : 𝓒.Mor a b, on a ≫ G.map f = F.map f ≫ on b
+
 end Functor
 
 end Category
