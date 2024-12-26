@@ -40,6 +40,18 @@ structure PreMorphism (F G : Functor C D) where
 structure Morphism (F G) extends @PreMorphism C D _ _ F G where
   natural : ∀ f : 𝓒.Mor a b, on a ≫ G.map f = F.map f ≫ on b
 
+infixr:80 " ⇒ " => Morphism
+
+namespace Morphism
+
+def id {F : Functor C D} : F ⇒ F := {
+  on _ := 𝓓.id,
+  natural := by
+    simp only [pre_id_simp, post_id_simp, implies_true]
+}
+
+end Morphism
+
 end Functor
 
 end Category
