@@ -19,7 +19,7 @@ structure Functor (C) [𝓒 : Category C] (D) [𝓓 : Category D] extends Pseudo
 
 namespace Functor
 
-variable [𝓒 : Category C] [𝓓 : Category D]
+variable [𝓒 : Category C] [𝓓 : Category D] [𝓔 : Category E]
 
 /-- Functors map isomorphisms to isomorphisms. -/
 def map_iso (F : Functor C D) (i : A ≅ B) : 𝓓.Isomorphism (F.obj A) (F.obj B) := {
@@ -48,6 +48,20 @@ def id {F : Functor C D} : F ⇒ F := {
   on _ := 𝓓.id,
   natural := by
     simp only [pre_id_simp, post_id_simp, implies_true]
+}
+
+def v_comp {F G H : Functor C D} (α : F ⇒ G) (β : G ⇒ H) : F ⇒ H := {
+  on c := α.on c ≫ β.on c,
+  natural := by
+    intro a b f
+    suffices (α.on a ≫ β.on a) ≫ H.map f = F.map f ≫ (α.on b ≫ β.on b) by
+      trivial
+    calc
+      _ = α.on a ≫ (β.on a ≫ H.map f) := by rw [comp_assoc]
+      _ = α.on a ≫ (G.map f ≫ β.on b) := by rw [β.natural]
+      _ = (α.on a ≫ G.map f) ≫ β.on b := by rw [←comp_assoc]
+      _ = (F.map f ≫ α.on b) ≫ β.on b := by rw [α.natural]
+      _ = _ := by rw [comp_assoc]
 }
 
 end Morphism
