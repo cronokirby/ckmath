@@ -21,6 +21,18 @@ namespace Functor
 
 variable [𝓒 : Category C] [𝓓 : Category D] [𝓔 : Category E]
 
+def comp (F : Functor C D) (G : Functor D E) : Functor C E := {
+  obj := G.obj ∘ F.obj,
+  map := G.map ∘ F.map,
+  map_id := by
+    intros
+    simp only [Function.comp_apply, F.map_id, G.map_id]
+  map_comp := by
+    intros
+    simp only [Function.comp_apply]
+    rw [F.map_comp, G.map_comp]
+}
+
 /-- Functors map isomorphisms to isomorphisms. -/
 def map_iso (F : Functor C D) (i : A ≅ B) : 𝓓.Isomorphism (F.obj A) (F.obj B) := {
   out := F.map i.out,
