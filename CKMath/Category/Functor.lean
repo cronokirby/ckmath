@@ -68,8 +68,8 @@ def v_comp {F G H : Functor C D} (α : F ⇒ G) (β : G ⇒ H) : F ⇒ H := {
     intro a b f
     suffices (α.on a ≫ β.on a) ≫ H.map f = F.map f ≫ (α.on b ≫ β.on b) by
       trivial
-    rw [←comp_assoc]
-    simp only [β.natural, comp_assoc_simp, α.natural]
+    rw [comp_assoc]
+    simp only [β.natural, ←comp_assoc, α.natural]
 }
 
 end Morphism

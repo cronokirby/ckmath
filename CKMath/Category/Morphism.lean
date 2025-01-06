@@ -35,7 +35,7 @@ theorem out_eq_then_inv_eq {A B : O} {f g : A ≅ B} : f.out = g.out → f.inv =
   rw [g.pre_inv] at h0
   have h1 : (g.inv ≫ f.out) ≫ f.inv = 𝓒.id ≫ f.inv := by
     congr
-  rw [←𝓒.comp_assoc, f.post_inv, 𝓒.post_id, 𝓒.pre_id] at h1
+  rw [𝓒.comp_assoc, f.post_inv, 𝓒.post_id, 𝓒.pre_id] at h1
   exact Eq.symm h1
 
 /-- To prove that two isomorphisms are equal, it suffices to show their carriers are equal.

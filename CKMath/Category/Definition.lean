@@ -29,7 +29,7 @@ class Category (O : Sort u) extends Category.Struct O where
   post_id (f : Mor A B) : f ≫ id = f
   /-- We can compose morphisms without regard to the grouping. -/
   comp_assoc (f : Mor A B) (g : Mor B C) (h : Mor C D) :
-    f ≫ (g ≫ h) = (f ≫ g) ≫ h
+    (f ≫ g) ≫ h = f ≫ (g ≫ h)
 
 -- Some basic simplification lemmas from the definition.
 namespace Category
@@ -45,7 +45,7 @@ theorem post_id_simp {A B : O} {f : 𝓒.Mor A B} : f ≫ 𝓒.id = f := 𝓒.po
 @[simp]
 theorem comp_assoc_simp
   {A B C D : O} {f : 𝓒.Mor A B} {g : 𝓒.Mor B C} {h : 𝓒.Mor C D}
-  : f ≫ (g ≫ h) = (f ≫ g) ≫ h
+  : (f ≫ g) ≫ h = f ≫ (g ≫ h)
   := 𝓒.comp_assoc f g h
 
 end Category

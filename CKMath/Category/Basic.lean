@@ -24,6 +24,6 @@ theorem double_square_commutes
   (square0 : a0 ≫ b1 = b0 ≫ c0)
   (square1: a1 ≫ b2 = b1 ≫ c1) :
   (a0 ≫ a1 ≫ b2 = b0 ≫ c0 ≫ c1) := by
-  simp only [square0, square1, 𝓒.comp_assoc]
+  simp only [square0, square1, ←𝓒.comp_assoc]
 
 end Category
