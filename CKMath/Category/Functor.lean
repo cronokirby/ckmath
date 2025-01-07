@@ -58,18 +58,18 @@ infixr:80 " ⇒ " => Morphism
 
 namespace Morphism
 
-section category
+section
 
-def id {F : Functor C D} : F ⇒ F := {
+private def id {F : Functor C D} : F ⇒ F := {
   on _ := 𝓓.id,
   natural := by
     simp only [pre_id_simp, post_id_simp, implies_true]
 }
 
 @[simp]
-def id_on {F : Functor C D} {c : C} : (@id _ _ _ _ F).on c = 𝓓.id := by trivial
+private theorem id_on {F : Functor C D} {c : C} : (@id _ _ _ _ F).on c = 𝓓.id := by trivial
 
-def comp {F G H : Functor C D} (α : F ⇒ G) (β : G ⇒ H) : F ⇒ H := {
+private def comp {F G H : Functor C D} (α : F ⇒ G) (β : G ⇒ H) : F ⇒ H := {
   on c := α.on c ≫ β.on c,
   natural := by
     intro a b f
@@ -79,18 +79,17 @@ def comp {F G H : Functor C D} (α : F ⇒ G) (β : G ⇒ H) : F ⇒ H := {
     simp only [β.natural, ←comp_assoc, α.natural]
 }
 
-@[simp]
-def comp_on {F G H : Functor C D} {α : F ⇒ G} {β : G ⇒ H} {c : C} : (α.comp β).on c = α.on c ≫ β.on c := by trivial
+private theorem comp_on {F G H : Functor C D} {α : F ⇒ G} {β : G ⇒ H} {c : C} : (α.comp β).on c = α.on c ≫ β.on c := by trivial
 
-def pre_id {F G : Functor C D} (α : F ⇒ G) : id.comp α = α := by
+private theorem pre_id {F G : Functor C D} (α : F ⇒ G) : id.comp α = α := by
   ext
   simp only [comp_on, id_on, 𝓓.pre_id]
 
-def post_id {F G : Functor C D} (α : F ⇒ G) : α.comp id = α := by
+private theorem post_id {F G : Functor C D} (α : F ⇒ G) : α.comp id = α := by
   ext
   simp only [comp_on, id_on, 𝓓.post_id]
 
-def comp_assoc
+private theorem comp_assoc
   {F G H E : Functor C D}
   (α : F ⇒ G)
   (β : G ⇒ H)
@@ -102,10 +101,11 @@ def comp_assoc
 instance instCategoryStruct : Category.Struct (Functor C D) :=
   ⟨Morphism, id, comp⟩
 
-def instCategory : Category (Functor C D) :=
+/-- Functors between two categories form a category, whose morphisms are given by natural transformations. -/
+instance instCategory : Category (Functor C D) :=
   ⟨pre_id, post_id, comp_assoc⟩
 
-end category
+end
 
 end Morphism
 
