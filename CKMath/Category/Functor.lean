@@ -33,6 +33,30 @@ def comp (F : Functor C D) (G : Functor D E) : Functor C E := {
     rw [F.map_comp, G.map_comp]
 }
 
+/-- Technical simplifier to work with composed functors. -/
+@[simp]
+theorem comp_map
+  {F : Functor C D}
+  {G : Functor D E}
+  {f : 𝓒.Mor A B} :
+  (F.comp G).map f = G.map (F.map f) := by
+  trivial
+
+/-- A functor preserves (among many such diagrams) a commutative square.
+
+This is a useful intermediate lemma
+-/
+theorem map_square
+  {F : Functor C D}
+  {f_00_01 : 𝓒.Mor A00 A01}
+  {f_00_10 : 𝓒.Mor A00 A10}
+  {f_01_11 : 𝓒.Mor A01 A11}
+  {f_10_11 : 𝓒.Mor A10 A11} :
+  (f_00_01 ≫ f_01_11 = f_00_10 ≫ f_10_11) →
+  ((F.map f_00_01) ≫ (F.map f_01_11) = (F.map f_00_10) ≫ (F.map f_10_11)) := by
+    intro h
+    rw [←F.map_comp, ←F.map_comp, h]
+
 /-- Functors map isomorphisms to isomorphisms. -/
 def map_iso (F : Functor C D) (i : A ≅ B) : 𝓓.Isomorphism (F.obj A) (F.obj B) := {
   out := F.map i.out,
@@ -56,15 +80,16 @@ structure Morphism (F G) extends @PreMorphism C D _ _ F G where
 
 infixr:80 " ⇒ " => Morphism
 
+def id_morphism (F : Functor C D) : F ⇒ F where
+  on _ := 𝓓.id
+  natural := by
+    simp only [pre_id_simp, post_id_simp, implies_true]
+
 namespace Morphism
 
 section
 
-private def id {F : Functor C D} : F ⇒ F := {
-  on _ := 𝓓.id,
-  natural := by
-    simp only [pre_id_simp, post_id_simp, implies_true]
-}
+private def id {F : Functor C D} : F ⇒ F := F.id_morphism
 
 @[simp]
 private theorem id_on {F : Functor C D} {c : C} : (@id _ _ _ _ F).on c = 𝓓.id := by trivial
@@ -79,7 +104,8 @@ private def comp {F G H : Functor C D} (α : F ⇒ G) (β : G ⇒ H) : F ⇒ H :
     simp only [β.natural, ←comp_assoc, α.natural]
 }
 
-private theorem comp_on {F G H : Functor C D} {α : F ⇒ G} {β : G ⇒ H} {c : C} : (α.comp β).on c = α.on c ≫ β.on c := by trivial
+@[simp]
+theorem comp_on {F G H : Functor C D} {α : F ⇒ G} {β : G ⇒ H} {c : C} : (α.comp β).on c = α.on c ≫ β.on c := by trivial
 
 private theorem pre_id {F G : Functor C D} (α : F ⇒ G) : id.comp α = α := by
   ext
@@ -106,6 +132,32 @@ instance instCategory : Category (Functor C D) :=
   ⟨pre_id, post_id, comp_assoc⟩
 
 end
+
+/-- Whisker a natural transformation before a functor.
+
+Another way of looking at this is horizontal composition with the identity transformation on the right.
+-/
+def whisker_pre {F G : Functor C D} (α : F ⇒ G) (H : Functor D E) : F.comp H ⇒ G.comp H where
+  on c := H.map (α.on c)
+  natural := by
+    intros
+    apply H.map_square
+    apply α.natural
+
+/-- c.f. `whisker_pre` -/
+def whisker_post {F G : Functor D E} (α : F ⇒ G) (H : Functor C D) : H.comp F ⇒ H.comp G where
+  on c := α.on (H.obj c)
+  natural := by
+    intros
+    simp only [comp_map, α.natural]
+
+@[simp]
+theorem whisker_pre_id {F : Functor C D} {H : Functor D E} : F.id_morphism.whisker_pre H = (F.comp H).id_morphism := by
+  simp only [whisker_pre, id_morphism, H.map_id]
+
+@[simp]
+theorem whisker_post_id {F : Functor C D} {H : Functor D E} : H.id_morphism.whisker_post F = (F.comp H).id_morphism := by
+  simp only [whisker_post, id_morphism]
 
 end Morphism
 
