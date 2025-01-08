@@ -41,18 +41,23 @@ namespace Category
 section
 
 variable (A : OA → OA → Sort v) (B : OB → OB → Sort v)
-
 /-- The basic data of a `Functor`, consisting of a map between the arrows of a category. -/
-structure Functor.Struct [𝓐 : Category.Struct A] [𝓑 : Category.Struct B] where
+structure Functor [𝓐 : Category.Struct A] [𝓑 : Category.Struct B] where
   /-- A map from objects of A to objects of B. -/
   obj : OA → OB
   /-- A map from maps in A to maps on the corresponding objects in B. -/
   map : A x y → B (obj x) (obj y)
 
-/-- Additionally, a functor is a *structure-preserving* map between categories. -/
-structure Functor [𝓐 : Category A] [𝓑 : Category B] extends Functor.Struct A B where
-  map_id : @map x x 𝓐.id = 𝓑.id
-  map_comp : map (f ≫ g) = map f ≫ map g
+/-- Usually, we require the Functor to preserve structure, calling it "behaved".
+
+In textbook category theory, all functors are behaved, and unbehaved functors might be called
+"prefunctors" instead. It turns out that for many theorems and definitions the mapping
+structure is all that's needed, which makes the well-behavedness useful to attach as a typeclass,
+especially since there's only one instance of the proofs that the functor behaves well.
+ -/
+class Functor.Behaved [𝓐 : Category A] [𝓑 : Category B] (F : Functor A B) where
+  map_id : @F.map x x 𝓐.id = 𝓑.id
+  map_comp : F.map (f ≫ g) = F.map f ≫ F.map g
 
 end
 
