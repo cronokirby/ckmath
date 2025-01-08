@@ -5,17 +5,17 @@ giving us a composition operator, before then proving that it behaves correctly.
 -/
 class Category.Struct {O : Sort u} (Mor : O → O → Sort v) where
   /-- We require a particular morphism for any object, acting as the identity. -/
-  id : Mor X X
+  id : Mor x x
   /-- We choose to compose arrows from left to right, binding to the right. -/
-  comp : Mor A B → Mor B C → Mor A C
+  comp : Mor a b → Mor b c → Mor a c
 
 /-- We define `≫` as a convenient notation for composition of morphisms. -/
 infixr:80 " ≫ " => Category.Struct.comp
 
 class Category {O : Sort u} (Mor : O → O → Sort v) extends @Category.Struct O Mor where
-  pre_id (f : Mor A B) : id ≫ f = f
-  post_id (f : Mor A B) : f ≫ id = f
-  comp_assoc (f : Mor A B) (g : Mor B C) (h : Mor C D) : (f ≫ g) ≫ h = f ≫ (g ≫ h)
+  pre_id : id ≫ f = f
+  post_id : f ≫ id = f
+  comp_assoc {f : Mor a b} {g : Mor b c} {h : Mor c d} : (f ≫ g) ≫ h = f ≫ (g ≫ h)
 
 /-- A synonym for `->`, acting as a carrier for the standard category of Sets.
 
@@ -35,3 +35,25 @@ instance Fun.category : Category Fun where
   pre_id := by intros ; rfl
   post_id := by intros ; rfl
   comp_assoc := by intros ; rfl
+
+namespace Category
+-- Defining `Functor`, `Functor.Struct`
+section
+
+variable (A : OA → OA → Sort v) (B : OB → OB → Sort v)
+
+/-- The basic data of a `Functor`, consisting of a map between the arrows of a category. -/
+structure Functor.Struct [𝓐 : Category.Struct A] [𝓑 : Category.Struct B] where
+  /-- A map from objects of A to objects of B. -/
+  obj : OA → OB
+  /-- A map from maps in A to maps on the corresponding objects in B. -/
+  map : A x y → B (obj x) (obj y)
+
+/-- Additionally, a functor is a *structure-preserving* map between categories. -/
+structure Functor [𝓐 : Category A] [𝓑 : Category B] extends Functor.Struct A B where
+  map_id : @map x x 𝓐.id = 𝓑.id
+  map_comp : map (f ≫ g) = map f ≫ map g
+
+end
+
+end Category
