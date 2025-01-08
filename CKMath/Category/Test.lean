@@ -172,11 +172,32 @@ def whisker_pre
   map_id := by
     intros
     ext
-    simp [Struct.id, H.map_id]
+    simp only [Struct.id, NaturalTransformation.id_on, H.map_id]
   map_comp := by
     intros
     ext
-    simp [H.map_comp]
+    simp only [NaturalTransformation.comp_on, H.map_comp]
+
+def whisker_post
+  (H : Functor A B) :
+  Functor
+  (NaturalTransformation (A := B) (B := C))
+  (NaturalTransformation (A := A) (B := C)) where
+  obj F := H.comp F
+  map {F G} α := {
+    on x := α.on (H.obj x)
+    natural := by
+      intros
+      simp [Functor.comp, α.natural]
+  }
+  map_id := by
+    intros
+    ext
+    simp only [Struct.id, NaturalTransformation.id_on]
+  map_comp := by
+    intros
+    ext
+    simp only [NaturalTransformation.comp_on]
 
 end whisker
 
