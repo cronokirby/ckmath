@@ -75,6 +75,11 @@ def id {F: Functor A B} : F ⇒ F where
     intros
     rw [pre_id, post_id]
 
+def comp {F G H : Functor A B} (α : F ⇒ G) (β : G ⇒ H) : F ⇒ H where
+  on x := α.on x ≫ β.on x
+  natural := by
+    intros
+    rw [comp_assoc, β.natural, ←comp_assoc, α.natural, comp_assoc]
 
 end NaturalTransformation
 
