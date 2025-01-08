@@ -67,6 +67,17 @@ structure NaturalTransformation (F G : Functor A B) where
 
 infixr:81 " ⇒ " => NaturalTransformation
 
+namespace NaturalTransformation
+
+def id {F: Functor A B} : F ⇒ F where
+  on _ := 𝓑.id
+  natural := by
+    intros
+    rw [pre_id, post_id]
+
+
+end NaturalTransformation
+
 end
 
 end Category
