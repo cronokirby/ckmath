@@ -61,6 +61,7 @@ section
 variable {A : OA → OA → Sort v} {B : OB → OB → Sort v}
 variable [𝓐 : Category A] [𝓑 : Category B]
 
+@[ext]
 structure NaturalTransformation (F G : Functor A B) where
   on (x) : B (F.obj x) (G.obj x)
   natural {f : A x y} : on x ≫ G.map f = F.map f ≫ on y
@@ -80,6 +81,36 @@ def comp {F G H : Functor A B} (α : F ⇒ G) (β : G ⇒ H) : F ⇒ H where
   natural := by
     intros
     rw [comp_assoc, β.natural, ←comp_assoc, α.natural, comp_assoc]
+
+instance categoryStruct : Category.Struct (O := Functor A B) NaturalTransformation where
+  id := id
+  comp := comp
+
+@[simp]
+theorem id_on {F : Functor A B} : (id (F := F)).on x = 𝓑.id := by trivial
+
+@[simp]
+theorem comp_on
+  {F G H : Functor A B}
+  {α : F ⇒ G}
+  {β : G ⇒ H}
+  {x} :
+  (α ≫ β).on x = α.on x ≫ β.on x := by
+    trivial
+
+instance category : Category (O := Functor A B) NaturalTransformation where
+  pre_id := by
+    intros
+    ext
+    simp only [comp_on, Struct.id, id_on, pre_id]
+  post_id := by
+    intros
+    ext
+    simp only [comp_on, Struct.id, id_on, post_id]
+  comp_assoc := by
+    intros
+    ext
+    simp only [comp_on, comp_assoc]
 
 end NaturalTransformation
 
