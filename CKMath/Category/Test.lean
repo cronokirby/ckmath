@@ -56,4 +56,17 @@ structure Functor [𝓐 : Category A] [𝓑 : Category B] extends Functor.Struct
 
 end
 
+section
+
+variable {A : OA → OA → Sort v} {B : OB → OB → Sort v}
+variable [𝓐 : Category A] [𝓑 : Category B]
+
+structure NaturalTransformation (F G : Functor A B) where
+  on (x) : B (F.obj x) (G.obj x)
+  natural {f : A x y} : on x ≫ G.map f = F.map f ≫ on y
+
+infixr:81 " ⇒ " => NaturalTransformation
+
+end
+
 end Category
