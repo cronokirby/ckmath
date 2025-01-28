@@ -201,6 +201,87 @@ def whisker_post
 
 end whisker
 
+section product
+
+/-
+! In this section, we define the product of two categories.
+!
+! This is more convoluted by having morphism focused library instead of an object-focused one.
+! Rather than being able to define a category on `A × B`, we instead have to define the category
+! on the morphisms of that category, which don't have a neatly pre-existing struct.
+! Hence, the introduction of `BiMorphism`.
+-/
+
+/-- In essence, this is just two morphisms, one in each category. -/
+abbrev BiMorphism
+  (A : OA → OA → Sort v_A)
+  (B : OB → OB → Sort v_B) :
+  OA ×' OB → OA ×' OB → Sort (max (max 1 v_A) v_B) :=
+  fun (x y) => (A x.1 y.1) ×' (B x.2 y.2)
+
+variable {A : OA → OA → Sort v_A} {B : OB → OB → Sort v_B}
+
+namespace BiMorphism
+
+section
+
+variable [𝓐 : Category.Struct A] [𝓑 : Category.Struct B]
+
+/-- `BiMorphism`s have the structure of a category, with pointwise operations. -/
+instance categoryStruct : Category.Struct (BiMorphism A B) where
+  id := ⟨𝓐.id, 𝓑.id⟩
+  comp := fun ⟨f0, g0⟩ ⟨f1, g1⟩ => ⟨f0 ≫ f1, g0 ≫ g1⟩
+
+@[simp]
+def id_fst : (@Category.Struct.id _ (BiMorphism A B) categoryStruct ⟨x, y⟩).fst = 𝓐.id := by
+  trivial
+
+@[simp]
+def id_snd : (@Category.Struct.id _ (BiMorphism A B) categoryStruct ⟨x, y⟩).snd = 𝓑.id := by
+  trivial
+
+@[simp]
+def comp_fst
+  {f : BiMorphism A B x y}
+  {g : BiMorphism A B y z} :
+  (f ≫ g).fst = f.fst ≫ g.fst := by
+  constructor
+
+@[simp]
+def comp_snd
+  {f : BiMorphism A B x y}
+  {g : BiMorphism A B y z} :
+  (f ≫ g).snd = f.snd ≫ g.snd := by
+  constructor
+end
+
+section
+
+variable [𝓐 : Category A] [𝓑 : Category B]
+
+/-- As one might expect, if both constituents are categories, they form a joint category of bimorphisms. -/
+instance category : Category (BiMorphism A B) where
+  pre_id := by
+    intros
+    ext
+    . rw [comp_fst, id_fst, 𝓐.pre_id]
+    . rw [comp_snd, id_snd, 𝓑.pre_id]
+  post_id := by
+    intros
+    ext
+    . rw [comp_fst, id_fst, 𝓐.post_id]
+    . rw [comp_snd, id_snd, 𝓑.post_id]
+  comp_assoc := by
+    intros
+    ext
+    . simp only [comp_fst, 𝓐.comp_assoc]
+    . simp only [comp_snd, 𝓑.comp_assoc]
+end
+
+end BiMorphism
+
+end product
+
 end
 
 end Category
