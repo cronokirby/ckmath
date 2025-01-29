@@ -74,6 +74,15 @@ infixr:81 " ⇒ " => NaturalTransformation
 
 namespace NaturalTransformation
 
+@[simp]
+theorem eq_iff_on_eq {F G : Functor A B} {α β : F ⇒ G} : α = β ↔ ∀ x, α.on x = β.on x := by
+  apply Iff.intro
+  . intro h _
+    rw [h]
+  . intro h
+    ext
+    rw [h]
+
 def id {F: Functor A B} : F ⇒ F where
   on _ := 𝓑.id
   natural := by
@@ -144,6 +153,14 @@ def whisker_pre
     ext
     simp only [NaturalTransformation.comp_on, H.map_comp]
 
+@[simp]
+def whisker_pre_on
+  {H : Functor B C}
+  {F0 F1 : Functor A B}
+  {α : F0 ⇒ F1}
+  {x} :
+  ((whisker_pre H).map α).on x = H.map (α.on x) := by rfl
+
 def whisker_post
   (H : Functor A B) :
   Functor
@@ -165,7 +182,45 @@ def whisker_post
     ext
     simp only [NaturalTransformation.comp_on]
 
+@[simp]
+def whisker_post_on
+  {H : Functor A B}
+  {F0 F1 : Functor B C}
+  {α : F0 ⇒ F1}
+  {x} :
+  ((whisker_post H).map α).on x = α.on (H.obj x) := by rfl
+
 end whisker
+
+section hcomp
+
+namespace NaturalTransformation
+
+variable {A : OA → OA → Sort v_A} {B : OB → OB → Sort v_B} {C : OC → OC → Sort v_C}
+variable [𝓐 : Category A] [𝓑 : Category B] [𝓒 : Category C]
+variable {F0 F1 F2 : Functor A B} {G0 G1 G2 : Functor B C}
+
+section
+
+variable (α : F0 ⇒ F1) (β : G0 ⇒ G1)
+
+abbrev hcomp_post_pre : (F0.comp G0) ⇒ (F1.comp G1) :=
+  (whisker_post F0).map β ≫ (whisker_pre G1).map α
+
+abbrev hcomp_pre_post : (F0.comp G0) ⇒ (F1.comp G1) :=
+  (whisker_pre G0).map α ≫ (whisker_post F1).map β
+
+theorem hcomp_pre_post_eq_post_pre : hcomp_pre_post α β = hcomp_post_pre α β := by
+  -- output of `simp? [β.natural]`.
+  simp only [eq_iff_on_eq, comp_on, whisker_pre_on, whisker_post_on, β.natural, implies_true]
+
+def NaturalTransformation.hcomp : (F0.comp G0) ⇒ (F1.comp G1) := hcomp_post_pre α β
+
+end
+
+end NaturalTransformation
+
+end hcomp
 
 end
 
