@@ -214,7 +214,32 @@ theorem hcomp_pre_post_eq_post_pre : hcomp_pre_post α β = hcomp_post_pre α β
   -- output of `simp? [β.natural]`.
   simp only [eq_iff_on_eq, comp_on, whisker_pre_on, whisker_post_on, β.natural, implies_true]
 
-def NaturalTransformation.hcomp : (F0.comp G0) ⇒ (F1.comp G1) := hcomp_post_pre α β
+def hcomp : (F0.comp G0) ⇒ (F1.comp G1) := hcomp_post_pre α β
+
+end
+
+-- Goal here, prove the compatability of horizontal and vertical composition.
+section
+
+variable (α0 : F0 ⇒ F1) (α1 : F1 ⇒ F2) (β0 : G0 ⇒ G1) (β1 : G1 ⇒ G2)
+
+/-- Horizontal composition is compatible with vertical composition in a natural way. -/
+theorem hcomp_vcomp_is_vcomp_hcomp : (α0 ≫ α1).hcomp (β0 ≫ β1) = (α0.hcomp β0) ≫ (α1.hcomp β1) := by
+  let wr_F0 := @whisker_post _ _ _ A B C _ _ _ F0
+  let wr_F1 := @whisker_post _ _ _ A B C _ _ _ F1
+  let wl_G1 := @whisker_pre _ _ _ A B C _ _ _ G1
+  let wl_G2 := @whisker_pre _ _ _ A B C _ _ _ G2
+  calc
+  _ = hcomp_post_pre (α0 ≫ α1) (β0 ≫ β1) := by trivial
+  _ = wr_F0.map (β0 ≫ β1) ≫ wl_G2.map (α0 ≫ α1) := by trivial
+  _ = wr_F0.map β0 ≫ (wr_F0.map β1 ≫ wl_G2.map α0) ≫ wl_G2.map α1 := by simp only [Functor.map_comp, comp_assoc]
+  _ = wr_F0.map β0 ≫ (wl_G1.map α0 ≫ wr_F1.map β1) ≫ wl_G2.map α1 := by
+    rw [←hcomp_post_pre]
+    simp only [←hcomp_pre_post_eq_post_pre]
+  _ = (wr_F0.map β0 ≫ wl_G1.map α0) ≫ (wr_F1.map β1 ≫ wl_G2.map α1) := by
+    simp only [comp_assoc]
+  _ = (α0.hcomp β0) ≫ (α1.hcomp β1) := by
+    simp only [hcomp_post_pre, hcomp]
 
 end
 
