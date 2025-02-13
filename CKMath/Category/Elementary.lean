@@ -106,4 +106,30 @@ end BiMorphism
 
 end product
 
+section opposites
+
+/-- The opposite of a given type of morphisms, i.e. morphisms in the reverse direction. -/
+abbrev Op (A : O_A → O_A → Sort v_A) : O_A → O_A → Sort v_A :=
+  fun (x y) => A y x
+
+namespace Op
+section
+
+variable {A : O_A → O_A → Sort v_A}
+variable [𝓐 : Category.Struct A]
+
+/-- The category of opposites.
+
+Because of our morphism centric approach, rather than looking at "the opposite category",
+we instead look at "the category of opposite morphisms".
+-/
+instance categoryStruct : Category.Struct (Op A) where
+  id := 𝓐.id
+  comp f g := 𝓐.comp g f
+end
+
+end Op
+
+end opposites
+
 end Category
