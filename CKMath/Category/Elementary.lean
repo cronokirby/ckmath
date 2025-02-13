@@ -108,15 +108,38 @@ end product
 
 section opposites
 
-/-- The opposite of a given type of morphisms, i.e. morphisms in the reverse direction. -/
-abbrev Op (A : O_A → O_A → Sort v_A) : O_A → O_A → Sort v_A :=
-  fun (x y) => A y x
+/-- The opposite of a given type of morphisms, i.e. morphisms in the reverse direction.
+
+We define this as an opaque struct for better wieldiness.
+ -/
+@[ext]
+structure Op (A : O_A → O_A → Sort v_A) (x y : O_A) where
+  unop : A y x
 
 namespace Op
-section
 
 variable {A : O_A → O_A → Sort v_A}
+
+/-- A morphism can be treated as an opposite morphism, with the direction reversed. -/
+def op (f : A x y) : (Op A) y x where
+  unop := f
+
+/-- To show that two opposite morphisms are the same, show that the underlying morphisms are. -/
+@[simp]
+theorem eq_iff_unop_eq (f g : (Op A) x y) : f = g ↔ f.unop = g.unop := by
+  constructor
+  . intro h
+    rw [h]
+  . intro h
+    ext
+    exact h
+
+@[simp]
+theorem op_unop (f : A x y) : (op f).unop = f := by trivial
+section
+
 variable [𝓐 : Category.Struct A]
+
 
 /-- The category of opposites.
 
@@ -124,8 +147,40 @@ Because of our morphism centric approach, rather than looking at "the opposite c
 we instead look at "the category of opposite morphisms".
 -/
 instance categoryStruct : Category.Struct (Op A) where
-  id := 𝓐.id
-  comp f g := 𝓐.comp g f
+  id := op 𝓐.id
+  comp f g := op (g.unop ≫ f.unop)
+
+
+/-- The opposite identity is in fact just the identity. -/
+@[simp]
+theorem unop_id_eq_id : unop (@categoryStruct.id x) = @𝓐.id x := by trivial
+
+/-- Composing two opposite morphisms is just backwards composition. -/
+@[simp]
+theorem unop_comp_eq_comp_unop
+  (f : (Op A) x y)
+  (g : (Op A) y z) :
+  (f ≫ g).unop = g.unop ≫ f.unop := by
+  trivial
+
+end
+
+section
+
+variable [𝓐 : Category A]
+
+/-- Naturally, opposite morphisms form a category, if the underlying morphisms do. -/
+instance category : Category (Op A) where
+  pre_id := by
+    intros
+    simp only [eq_iff_unop_eq, unop_comp_eq_comp_unop, unop_id_eq_id, 𝓐.post_id]
+  post_id := by
+    intros
+    simp only [eq_iff_unop_eq, unop_comp_eq_comp_unop, unop_id_eq_id, 𝓐.pre_id]
+  comp_assoc := by
+    intros
+    simp only [eq_iff_unop_eq, unop_comp_eq_comp_unop, 𝓐.comp_assoc]
+
 end
 
 end Op
