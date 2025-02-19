@@ -37,11 +37,15 @@ section product
 -/
 
 /-- In essence, this is just two morphisms, one in each category. -/
-abbrev BiMorphism
+@[ext]
+structure BiMorphism
   (A : OA → OA → Sort v_A)
-  (B : OB → OB → Sort v_B) :
-  OA ×' OB → OA ×' OB → Sort (max (max 1 v_A) v_B) :=
-  fun (x y) => (A x.1 y.1) ×' (B x.2 y.2)
+  (B : OB → OB → Sort v_B)
+  (X : OA ×' OB)
+  (Y : OA ×' OB)
+where
+  fst : A X.fst Y.fst
+  snd : B X.snd Y.snd
 
 variable {A : OA → OA → Sort v_A} {B : OB → OB → Sort v_B}
 
