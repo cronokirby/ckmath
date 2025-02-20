@@ -62,17 +62,22 @@ end Functor
 
 section
 
-variable {A : OA → OA → Sort v_A} {B : OB → OB → Sort v_B}
+variable (A : OA → OA → Sort v_A) (B : OB → OB → Sort v_B)
 variable [𝓐 : Category A] [𝓑 : Category B]
 
 @[ext]
-structure NaturalTransformation (F G : Functor A B) where
+structure Nat (F G : Functor A B) where
   on (x) : B (F.obj x) (G.obj x)
   natural {f : A x y} : on x ≫ G.map f = F.map f ≫ on y
 
-infixr:81 " ⇒ " => NaturalTransformation
+infixr:81 " ⇒ " => Nat _ _
 
-namespace NaturalTransformation
+end
+
+namespace Nat
+
+variable {A : OA → OA → Sort v_A} {B : OB → OB → Sort v_B}
+variable [𝓐 : Category A] [𝓑 : Category B]
 
 @[simp]
 theorem eq_iff_on_eq {F G : Functor A B} {α β : F ⇒ G} : α = β ↔ ∀ x, α.on x = β.on x := by
@@ -95,7 +100,7 @@ def comp {F G H : Functor A B} (α : F ⇒ G) (β : G ⇒ H) : F ⇒ H where
     intros
     rw [comp_assoc, β.natural, ←comp_assoc, α.natural, comp_assoc]
 
-instance categoryStruct : Category.Struct (O := Functor A B) NaturalTransformation where
+instance categoryStruct : Category.Struct (O := Functor A B) (Nat A B) where
   id := id
   comp := comp
 
@@ -111,7 +116,7 @@ theorem comp_on
   (α ≫ β).on x = α.on x ≫ β.on x := by
     trivial
 
-instance category : Category (O := Functor A B) NaturalTransformation where
+instance category : Category (O := Functor A B) (Nat A B) where
   pre_id := by
     intros
     ext
@@ -125,7 +130,7 @@ instance category : Category (O := Functor A B) NaturalTransformation where
     ext
     simp only [comp_on, comp_assoc]
 
-end NaturalTransformation
+end Nat
 
 section whisker
 
@@ -135,8 +140,8 @@ variable [𝓐 : Category A] [𝓑 : Category B] [𝓒 : Category C]
 def whisker_pre
   (H : Functor B C) :
   Functor
-  (NaturalTransformation (A := A) (B := B))
-  (NaturalTransformation (A := A) (B := C)) where
+  (Nat A B)
+  (Nat A C) where
   obj F := F.comp H
   map {F G} α := {
     on x := H.map (α.on x)
@@ -147,11 +152,11 @@ def whisker_pre
   map_id := by
     intros
     ext
-    simp only [Struct.id, NaturalTransformation.id_on, H.map_id]
+    simp only [Struct.id, Nat.id_on, H.map_id]
   map_comp := by
     intros
     ext
-    simp only [NaturalTransformation.comp_on, H.map_comp]
+    simp only [Nat.comp_on, H.map_comp]
 
 @[simp]
 def whisker_pre_on
@@ -164,8 +169,8 @@ def whisker_pre_on
 def whisker_post
   (H : Functor A B) :
   Functor
-  (NaturalTransformation (A := B) (B := C))
-  (NaturalTransformation (A := A) (B := C)) where
+  (Nat B C)
+  (Nat A C) where
   obj F := H.comp F
   map {F G} α := {
     on x := α.on (H.obj x)
@@ -176,11 +181,11 @@ def whisker_post
   map_id := by
     intros
     ext
-    simp only [Struct.id, NaturalTransformation.id_on]
+    simp only [Struct.id, Nat.id_on]
   map_comp := by
     intros
     ext
-    simp only [NaturalTransformation.comp_on]
+    simp only [Nat.comp_on]
 
 @[simp]
 def whisker_post_on
@@ -194,7 +199,7 @@ end whisker
 
 section hcomp
 
-namespace NaturalTransformation
+namespace Nat
 
 variable {A : OA → OA → Sort v_A} {B : OB → OB → Sort v_B} {C : OC → OC → Sort v_C}
 variable [𝓐 : Category A] [𝓑 : Category B] [𝓒 : Category C]
@@ -243,10 +248,8 @@ theorem hcomp_vcomp_is_vcomp_hcomp : (α0 ≫ α1).hcomp (β0 ≫ β1) = (α0.hc
 
 end
 
-end NaturalTransformation
+end Nat
 
 end hcomp
-
-end
 
 end Category
