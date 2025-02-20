@@ -1,4 +1,7 @@
 import CKMath.Category.Definition
+import CKMath.Category.Functor
+
+namespace Category
 
 variable {OA : Sort u_A}
 
@@ -81,3 +84,21 @@ instance category : Category (Iso A) where
     simp only [eq_iff_out_eq, comp_out, 𝓐.comp_assoc]
 
 end Iso
+
+/-- A short abbreviation for natural isomorphisms.
+
+We define these as simply being isomorphisms in the category of natural transformations.
+
+This immediately gives us the fact that they form a category, making this
+a better definition.
+-/
+abbrev NatIso
+  (A : OA → OA → Sort v_A)
+  (B : OB → OB → Sort v_B)
+  [𝓐 : Category A]
+  [𝓑 : Category B]
+  := Iso (Nat A B)
+
+infixr:82 " ≅ " => NatIso _ _
+
+end Category
