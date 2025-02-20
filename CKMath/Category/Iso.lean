@@ -5,32 +5,72 @@ namespace Category
 
 variable {OA : Sort u_A}
 
-/-- Represents an isomorphism in some category.
+/-- An inverse for a particular morphism composes with it to form the identity.
 
-An isomorphism is a morphism with a proper inverse.
+It's useful to separate out the inverse itself from a full isomorphism,
+that way we can talk about a morphism with some structure having some property,
+and then how the inverse might gain an analogous property.
+
+This is useful e.g. to say that a natural transformation + inverse to the carrier
+(without assuming naturality yet) is a natural isomorphism.
 -/
 @[ext]
-structure Iso (A : OA → OA → Sort v_A) [𝓐 : Category A] (x y : OA) where
-  out : A x y
+structure Inverse
+  {A : OA → OA → Sort v_A}
+  [𝓐 : Category.Struct A]
+  (f : A x y) where
   inv : A y x
-  inv_pre : inv ≫ out = 𝓐.id
-  inv_post : out ≫ inv = 𝓐.id
+  inv_pre : inv ≫ f = 𝓐.id
+  inv_post : f ≫ inv = 𝓐.id
+
+namespace Inverse
+
+variable {A : OA → OA → Sort v_A}
+variable [𝓐 : Category A]
+
+/-- Any inverse is as good as any other! -/
+def unique (f : A x y) (g0 g1 : Inverse f) : g0 = g1 := by
+  ext
+  calc
+    _ = g0.inv := by rfl
+    _ = g0.inv ≫ 𝓐.id := by rw [𝓐.post_id]
+    _ = g0.inv ≫ f ≫ g1.inv := by rw [g1.inv_post]
+    _ = (g0.inv ≫ f) ≫ g1.inv := by rw [𝓐.comp_assoc]
+    _ = g1.inv := by rw [g0.inv_pre, 𝓐.pre_id]
+
+/-- Inverses naturally compose. -/
+def comp {f0 : A x y} {f1 : A y z} (g0 : Inverse f0) (g1 : Inverse f1) : Inverse (f0 ≫ f1) := {
+  inv := g1.inv ≫ g0.inv,
+  inv_pre := by
+    calc
+    _ = g1.inv ≫ (g0.inv ≫ f0) ≫ f1 := by simp only [𝓐.comp_assoc]
+    _ = 𝓐.id := by rw [g0.inv_pre, 𝓐.pre_id, g1.inv_pre]
+  inv_post := by
+    calc
+    _ = f0 ≫ (f1 ≫ g1.inv) ≫ g0.inv := by simp only [𝓐.comp_assoc]
+    _ = 𝓐.id := by rw [g1.inv_post, 𝓐.pre_id, g0.inv_post]
+}
+
+end Inverse
+
+/-- Represents an isomorphism in some category.
+
+An isomorphism is a morphism with an inverse.
+-/
+@[ext]
+structure Iso (A : OA → OA → Sort v_A) [𝓐 : Category.Struct A] (x y : OA) where
+  out : A x y
+  inv : Inverse out
 
 namespace Iso
 
 variable {A : OA → OA → Sort v_A}
 variable [𝓐 : Category A]
 
-/-- When the main function of an isomorphism is equal, the inverses are also equal. -/
-def out_eq_implies_inv_eq {f g : Iso A x y} : f.out = g.out → f.inv = g.inv := by
-  intro h
-  calc
-  _ = f.inv ≫ 𝓐.id := by rw [𝓐.post_id]
-  _ = f.inv ≫ (g.out ≫ g.inv) := by rw [g.inv_post]
-  _ = f.inv ≫ (f.out ≫ g.inv) := by rw [h]
-  _ = g.inv := by rw [←𝓐.comp_assoc, f.inv_pre, 𝓐.pre_id]
+/-- To compare isomorphisms, it suffices to compare the primary morphisms.
 
-/-- To compare isomorphisms, it suffices to compare the primary morphisms. -/
+This is because any two inverses of a given morphism are equal.
+-/
 @[simp]
 def eq_iff_out_eq {f g : Iso A x y} : f = g ↔ f.out = g.out := by
   constructor
@@ -39,27 +79,23 @@ def eq_iff_out_eq {f g : Iso A x y} : f = g ↔ f.out = g.out := by
   . intro h
     ext
     . exact h
-    . exact out_eq_implies_inv_eq h
+    . apply heq_of_eqRec_eq
+      . apply Inverse.unique
+      . rw [h]
 
 /-- There's a natural isomorphism from an object to itself. -/
 def id : Iso A x x where
   out := 𝓐.id
-  inv := 𝓐.id
-  inv_pre := 𝓐.pre_id
-  inv_post := 𝓐.post_id
+  inv := {
+    inv := 𝓐.id,
+    inv_pre := 𝓐.pre_id,
+    inv_post := 𝓐.post_id
+  }
 
 /-- We can compose isomorphisms as well. -/
 def comp (f : Iso A X Y) (g : Iso A Y Z) : Iso A X Z where
   out := f.out ≫ g.out
-  inv := g.inv ≫ f.inv
-  inv_pre := by
-    calc
-    _ = g.inv ≫ (f.inv ≫ f.out) ≫ g.out := by simp only [𝓐.comp_assoc]
-    _ = 𝓐.id := by rw [f.inv_pre, 𝓐.pre_id, g.inv_pre]
-  inv_post := by
-    calc
-    _ = f.out ≫ (g.out ≫ g.inv) ≫ f.inv := by simp only [𝓐.comp_assoc]
-    _ = 𝓐.id := by rw [g.inv_post, 𝓐.pre_id, f.inv_post]
+  inv := f.inv.comp g.inv
 
 instance categoryStruct : Category.Struct (Iso A) where
   id := id
