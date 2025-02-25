@@ -137,4 +137,51 @@ abbrev NatIso
 
 infixr:82 " ≅ " => NatIso _ _
 
+namespace NatIso
+
+variable {A : OA → OA → Sort v_A}
+variable {B : OB → OB → Sort v_B}
+variable [𝓐 : Category A]
+variable [𝓑 : Category B]
+
+/-- Construct a natural isomorphism from a transformation and a bundle of inverses.
+
+The key proof involved here is that naturality of the bundle of inverses follows simply
+from the underlying transformation being natural.
+-/
+def from_inverse
+  {F : Functor A B}
+  {G : Functor A B}
+  (φ : F ⇒ G)
+  (inverse_on : (x : OA) → Inverse (φ.on x))
+  : (F ≅ G)
+  := {
+    out := φ,
+    inv := {
+      inv := {
+        on x := (inverse_on x).inv
+        natural := by
+          intro x y f
+          calc
+          _ = (inverse_on x).inv ≫ (F.map f ≫ φ.on y) ≫ (inverse_on y).inv := by
+            rw [comp_assoc, (inverse_on y).inv_post, post_id]
+          _ = (inverse_on x).inv ≫ (φ.on x ≫ G.map f) ≫ (inverse_on y).inv := by
+            rw [φ.natural]
+          _ = G.map f ≫ (inverse_on y).inv := by
+            simp only [←comp_assoc, (inverse_on x).inv_pre, pre_id]
+      },
+      inv_pre := by
+        apply Nat.eq_iff_on_eq.mpr
+        intro x
+        rw [Nat.comp_on, (inverse_on x).inv_pre]
+        exact Nat.id_on
+      inv_post := by
+        apply Nat.eq_iff_on_eq.mpr
+        intro x
+        rw [Nat.comp_on, (inverse_on x).inv_post]
+        exact Nat.id_on
+    }
+  }
+end NatIso
+
 end Category
