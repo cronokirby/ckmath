@@ -47,38 +47,39 @@ where
   fst : A X.fst Y.fst
   snd : B X.snd Y.snd
 
-variable {A : OA → OA → Sort v_A} {B : OB → OB → Sort v_B}
+infixr:90 " ⨂ " => BiMorphism
 
 namespace BiMorphism
 
 section
 
+variable {A : OA → OA → Sort v_A} {B : OB → OB → Sort v_B}
 variable [𝓐 : Category.Struct A] [𝓑 : Category.Struct B]
 
 /-- `BiMorphism`s have the structure of a category, with pointwise operations. -/
-instance categoryStruct : Category.Struct (BiMorphism A B) where
+instance categoryStruct : Category.Struct (A ⨂ B) where
   id := ⟨𝓐.id, 𝓑.id⟩
   comp := fun ⟨f0, g0⟩ ⟨f1, g1⟩ => ⟨f0 ≫ f1, g0 ≫ g1⟩
 
 @[simp]
-def id_fst : (@Category.Struct.id _ (BiMorphism A B) categoryStruct ⟨x, y⟩).fst = 𝓐.id := by
+def id_fst : (@Category.Struct.id _ (A ⨂ B) categoryStruct ⟨x, y⟩).fst = 𝓐.id := by
   trivial
 
 @[simp]
-def id_snd : (@Category.Struct.id _ (BiMorphism A B) categoryStruct ⟨x, y⟩).snd = 𝓑.id := by
+def id_snd : (@Category.Struct.id _ (A ⨂ B) categoryStruct ⟨x, y⟩).snd = 𝓑.id := by
   trivial
 
 @[simp]
 def comp_fst
-  {f : BiMorphism A B x y}
-  {g : BiMorphism A B y z} :
+  {f : (A ⨂ B) x y}
+  {g : (A ⨂ B) y z} :
   (f ≫ g).fst = f.fst ≫ g.fst := by
   constructor
 
 @[simp]
 def comp_snd
-  {f : BiMorphism A B x y}
-  {g : BiMorphism A B y z} :
+  {f : (A ⨂ B) x y}
+  {g : (A ⨂ B) y z} :
   (f ≫ g).snd = f.snd ≫ g.snd := by
   constructor
 end
@@ -88,7 +89,7 @@ section
 variable [𝓐 : Category A] [𝓑 : Category B]
 
 /-- As one might expect, if both constituents are categories, they form a joint category of bimorphisms. -/
-instance category : Category (BiMorphism A B) where
+instance category : Category (A ⨂ B) where
   pre_id := by
     intros
     ext
