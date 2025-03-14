@@ -21,6 +21,8 @@ structure Functor
   /-- The functor respects composition. -/
   map_comp : map (f ≫ g) = map f ≫ map g
 
+infixr:90 " ⥤ " => Functor
+
 namespace Functor
 
 variable
@@ -33,30 +35,32 @@ variable
   [𝓒 : Category C]
   [𝓓 : Category D]
 
-def id : Functor A A where
+def id : A ⥤ A where
   obj x := x
   map f := f
   map_id := by intros ; trivial
   map_comp := by intros ; trivial
 
-def comp (F : Functor A B) (G : Functor B C) : Functor A C where
+def comp (F : A ⥤ B) (G : B ⥤ C) : A ⥤ C where
   obj := G.obj ∘ F.obj
   map := G.map ∘ F.map
   map_id := by simp [F.map_id, G.map_id]
   map_comp := by simp [F.map_comp, G.map_comp]
 
-@[simp]
-def pre_id {F : Functor A B} : id.comp F = F := by trivial
+infixr:80 " ⋙ " => Functor.comp
 
 @[simp]
-def post_id {F : Functor A B} : F.comp id = F := by trivial
+def pre_id {F : A ⥤ B} : id ⋙ F = F := by trivial
+
+@[simp]
+def post_id {F : A ⥤ B} : F ⋙ id = F := by trivial
 
 @[simp]
 def comp_assoc
-  {F : Functor A B}
-  {G : Functor B C}
-  {H : Functor C D} :
-  (F.comp G).comp H = F.comp (G.comp H) := by trivial
+  {F : A ⥤ B}
+  {G : B ⥤ C}
+  {H : C ⥤ D} :
+  (F ⋙ G) ⋙ H = F ⋙ G ⋙ H := by trivial
 
 end Functor
 
@@ -80,7 +84,7 @@ variable {A : OA → OA → Sort v_A} {B : OB → OB → Sort v_B}
 variable [𝓐 : Category A] [𝓑 : Category B]
 
 @[simp]
-theorem eq_iff_on_eq {F G : Functor A B} {α β : F ⇒ G} : α = β ↔ ∀ x, α.on x = β.on x := by
+theorem eq_iff_on_eq {F G : A ⥤ B} {α β : F ⇒ G} : α = β ↔ ∀ x, α.on x = β.on x := by
   apply Iff.intro
   . intro h _
     rw [h]
@@ -88,28 +92,28 @@ theorem eq_iff_on_eq {F G : Functor A B} {α β : F ⇒ G} : α = β ↔ ∀ x, 
     ext
     rw [h]
 
-def id {F: Functor A B} : F ⇒ F where
+def id {F: A ⥤ B} : F ⇒ F where
   on _ := 𝓑.id
   natural := by
     intros
     rw [pre_id, post_id]
 
-def comp {F G H : Functor A B} (α : F ⇒ G) (β : G ⇒ H) : F ⇒ H where
+def comp {F G H : A ⥤ B} (α : F ⇒ G) (β : G ⇒ H) : F ⇒ H where
   on x := α.on x ≫ β.on x
   natural := by
     intros
     rw [comp_assoc, β.natural, ←comp_assoc, α.natural, comp_assoc]
 
-instance categoryStruct : Category.Struct (O := Functor A B) (Nat A B) where
+instance categoryStruct : Category.Struct (O := A ⥤ B) (Nat A B) where
   id := id
   comp := comp
 
 @[simp]
-theorem id_on {F : Functor A B} : (id (F := F)).on x = 𝓑.id := by trivial
+theorem id_on {F : A ⥤ B} : (id (F := F)).on x = 𝓑.id := by trivial
 
 @[simp]
 theorem comp_on
-  {F G H : Functor A B}
+  {F G H : A ⥤ B}
   {α : F ⇒ G}
   {β : G ⇒ H}
   {x} :
@@ -138,10 +142,8 @@ variable {A : OA → OA → Sort v_A} {B : OB → OB → Sort v_B} {C : OC → O
 variable [𝓐 : Category A] [𝓑 : Category B] [𝓒 : Category C]
 
 def whisker_pre
-  (H : Functor B C) :
-  Functor
-  (Nat A B)
-  (Nat A C) where
+  (H : B ⥤ C) :
+  (Nat A B) ⥤ (Nat A C) where
   obj F := F.comp H
   map {F G} α := {
     on x := H.map (α.on x)
@@ -160,17 +162,15 @@ def whisker_pre
 
 @[simp]
 def whisker_pre_on
-  {H : Functor B C}
-  {F0 F1 : Functor A B}
+  {H : B ⥤ C}
+  {F0 F1 : A ⥤ B}
   {α : F0 ⇒ F1}
   {x} :
   ((whisker_pre H).map α).on x = H.map (α.on x) := by rfl
 
 def whisker_post
-  (H : Functor A B) :
-  Functor
-  (Nat B C)
-  (Nat A C) where
+  (H : A ⥤ B) :
+  (Nat B C) ⥤ (Nat A C) where
   obj F := H.comp F
   map {F G} α := {
     on x := α.on (H.obj x)
@@ -189,8 +189,8 @@ def whisker_post
 
 @[simp]
 def whisker_post_on
-  {H : Functor A B}
-  {F0 F1 : Functor B C}
+  {H : A ⥤ B}
+  {F0 F1 : B ⥤ C}
   {α : F0 ⇒ F1}
   {x} :
   ((whisker_post H).map α).on x = α.on (H.obj x) := by rfl
@@ -203,7 +203,7 @@ namespace Nat
 
 variable {A : OA → OA → Sort v_A} {B : OB → OB → Sort v_B} {C : OC → OC → Sort v_C}
 variable [𝓐 : Category A] [𝓑 : Category B] [𝓒 : Category C]
-variable {F0 F1 F2 : Functor A B} {G0 G1 G2 : Functor B C}
+variable {F0 F1 F2 : A ⥤ B} {G0 G1 G2 : B ⥤ C}
 
 section
 

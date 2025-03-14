@@ -7,7 +7,7 @@ namespace Category
 variable [𝓐 : Category (O := OA) A]
 
 /-- Represents the natural hom functor, mapping morphisms to functions between hom-sets. -/
-def Hom (x : OA) : Functor A Fun where
+def Hom (x : OA) : A ⥤ Fun where
   obj y := A x y
   map {a b} (f : A a b) := fun (g : A x a) ↦ g ≫ f
   map_id := by

@@ -12,6 +12,6 @@ def BiFunctor
   [𝓐 : Category A]
   [𝓑 : Category B]
   [𝓒 : Category C] :=
-  Functor (BiMorphism A B) C
+  (BiMorphism A B) ⥤ C
 
 end Category

@@ -150,8 +150,8 @@ The key proof involved here is that naturality of the bundle of inverses follows
 from the underlying transformation being natural.
 -/
 def from_inverse
-  {F : Functor A B}
-  {G : Functor A B}
+  {F : A ⥤ B}
+  {G : A ⥤ B}
   (φ : F ⇒ G)
   (inverse_on : (x : OA) → Inverse (φ.on x))
   : (F ≅ G)
