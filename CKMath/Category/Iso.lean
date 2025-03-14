@@ -152,7 +152,7 @@ from the underlying transformation being natural.
 def from_inverse
   {F : A ⥤ B}
   {G : A ⥤ B}
-  (φ : F ⇒ G)
+  (φ : F ⇓ G)
   (inverse_on : (x : OA) → Inverse (φ.on x))
   : (F ≅ G)
   := {

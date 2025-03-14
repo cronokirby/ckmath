@@ -74,7 +74,7 @@ structure Nat (F G : Functor A B) where
   on (x) : B (F.obj x) (G.obj x)
   natural {f : A x y} : on x ≫ G.map f = F.map f ≫ on y
 
-infixr:81 " ⇒ " => Nat _ _
+infixr:81 " ⇓ " => Nat _ _
 
 end
 
@@ -84,7 +84,7 @@ variable {A : OA → OA → Sort v_A} {B : OB → OB → Sort v_B}
 variable [𝓐 : Category A] [𝓑 : Category B]
 
 @[simp]
-theorem eq_iff_on_eq {F G : A ⥤ B} {α β : F ⇒ G} : α = β ↔ ∀ x, α.on x = β.on x := by
+theorem eq_iff_on_eq {F G : A ⥤ B} {α β : F ⇓ G} : α = β ↔ ∀ x, α.on x = β.on x := by
   apply Iff.intro
   . intro h _
     rw [h]
@@ -92,13 +92,13 @@ theorem eq_iff_on_eq {F G : A ⥤ B} {α β : F ⇒ G} : α = β ↔ ∀ x, α.o
     ext
     rw [h]
 
-def id {F: A ⥤ B} : F ⇒ F where
+def id {F: A ⥤ B} : F ⇓ F where
   on _ := 𝓑.id
   natural := by
     intros
     rw [pre_id, post_id]
 
-def comp {F G H : A ⥤ B} (α : F ⇒ G) (β : G ⇒ H) : F ⇒ H where
+def comp {F G H : A ⥤ B} (α : F ⇓ G) (β : G ⇓ H) : F ⇓ H where
   on x := α.on x ≫ β.on x
   natural := by
     intros
@@ -114,8 +114,8 @@ theorem id_on {F : A ⥤ B} : (id (F := F)).on x = 𝓑.id := by trivial
 @[simp]
 theorem comp_on
   {F G H : A ⥤ B}
-  {α : F ⇒ G}
-  {β : G ⇒ H}
+  {α : F ⇓ G}
+  {β : G ⇓ H}
   {x} :
   (α ≫ β).on x = α.on x ≫ β.on x := by
     trivial
@@ -164,7 +164,7 @@ def whisker_pre
 def whisker_pre_on
   {H : B ⥤ C}
   {F0 F1 : A ⥤ B}
-  {α : F0 ⇒ F1}
+  {α : F0 ⇓ F1}
   {x} :
   ((whisker_pre H).map α).on x = H.map (α.on x) := by rfl
 
@@ -191,7 +191,7 @@ def whisker_post
 def whisker_post_on
   {H : A ⥤ B}
   {F0 F1 : B ⥤ C}
-  {α : F0 ⇒ F1}
+  {α : F0 ⇓ F1}
   {x} :
   ((whisker_post H).map α).on x = α.on (H.obj x) := by rfl
 
@@ -207,26 +207,27 @@ variable {F0 F1 F2 : A ⥤ B} {G0 G1 G2 : B ⥤ C}
 
 section
 
-variable (α : F0 ⇒ F1) (β : G0 ⇒ G1)
+variable (α : F0 ⇓ F1) (β : G0 ⇓ G1)
 
-abbrev hcomp_post_pre : (F0.comp G0) ⇒ (F1.comp G1) :=
+
+abbrev hcomp_post_pre : (F0.comp G0) ⇓ (F1.comp G1) :=
   (whisker_post F0).map β ≫ (whisker_pre G1).map α
 
-abbrev hcomp_pre_post : (F0.comp G0) ⇒ (F1.comp G1) :=
+abbrev hcomp_pre_post : (F0.comp G0) ⇓ (F1.comp G1) :=
   (whisker_pre G0).map α ≫ (whisker_post F1).map β
 
 theorem hcomp_pre_post_eq_post_pre : hcomp_pre_post α β = hcomp_post_pre α β := by
   -- output of `simp? [β.natural]`.
   simp only [eq_iff_on_eq, comp_on, whisker_pre_on, whisker_post_on, β.natural, implies_true]
 
-def hcomp : (F0.comp G0) ⇒ (F1.comp G1) := hcomp_post_pre α β
+def hcomp : (F0.comp G0) ⇓ (F1.comp G1) := hcomp_post_pre α β
 
 end
 
 -- Goal here, prove the compatability of horizontal and vertical composition.
 section
 
-variable (α0 : F0 ⇒ F1) (α1 : F1 ⇒ F2) (β0 : G0 ⇒ G1) (β1 : G1 ⇒ G2)
+variable (α0 : F0 ⇓ F1) (α1 : F1 ⇓ F2) (β0 : G0 ⇓ G1) (β1 : G1 ⇓ G2)
 
 /-- Horizontal composition is compatible with vertical composition in a natural way. -/
 theorem hcomp_vcomp_is_vcomp_hcomp : (α0 ≫ α1).hcomp (β0 ≫ β1) = (α0.hcomp β0) ≫ (α1.hcomp β1) := by
