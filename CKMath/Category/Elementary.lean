@@ -49,62 +49,52 @@ where
 
 infixr:90 " ⨂ " => BiMorphism
 
+/-- A category structure on `A ⨂ B` which is compatible with the underlying categories.
+
+There's a natural way of turning `A ⨂ B` into the morphisms of a category, which behaves
+particularly nicely pointwise. This class captures that this category is being used,
+allowing us to do reasoning beyond that of a plain category.
+
+This is a bit of a "Lean hack" allowing us to assume that the category instance for
+`A ⨂ B` has particular properties relating it to `A` and `B` individually.
+-/
+class BiCategory
+  (A : OA → OA → Sort v_A)
+  (B : OB → OB → Sort v_B)
+  [𝓐 : Category A]
+  [𝓑 : Category B]
+  extends @Category _ (A ⨂ B) where
+  bi_compat_id {x} : @id x = ⟨𝓐.id, 𝓑.id⟩
+  bi_compat_comp
+    {f : (A ⨂ B) x y}
+    {g : (A ⨂ B) y z} :
+    (f ≫ g) = ⟨f.fst ≫ g.fst, f.snd ≫ g.snd⟩
+
 namespace BiMorphism
 
 section
 
 variable {A : OA → OA → Sort v_A} {B : OB → OB → Sort v_B}
-variable [𝓐 : Category.Struct A] [𝓑 : Category.Struct B]
-
-/-- `BiMorphism`s have the structure of a category, with pointwise operations. -/
-instance categoryStruct : Category.Struct (A ⨂ B) where
-  id := ⟨𝓐.id, 𝓑.id⟩
-  comp := fun ⟨f0, g0⟩ ⟨f1, g1⟩ => ⟨f0 ≫ f1, g0 ≫ g1⟩
-
-@[simp]
-def id_fst : (@Category.Struct.id _ (A ⨂ B) categoryStruct ⟨x, y⟩).fst = 𝓐.id := by
-  trivial
-
-@[simp]
-def id_snd : (@Category.Struct.id _ (A ⨂ B) categoryStruct ⟨x, y⟩).snd = 𝓑.id := by
-  trivial
-
-@[simp]
-def comp_fst
-  {f : (A ⨂ B) x y}
-  {g : (A ⨂ B) y z} :
-  (f ≫ g).fst = f.fst ≫ g.fst := by
-  constructor
-
-@[simp]
-def comp_snd
-  {f : (A ⨂ B) x y}
-  {g : (A ⨂ B) y z} :
-  (f ≫ g).snd = f.snd ≫ g.snd := by
-  constructor
-end
-
-section
-
 variable [𝓐 : Category A] [𝓑 : Category B]
 
-/-- As one might expect, if both constituents are categories, they form a joint category of bimorphisms. -/
-instance category : Category (A ⨂ B) where
+instance bicategory : BiCategory A B where
+  id := ⟨𝓐.id, 𝓑.id⟩
+  comp := fun ⟨f0, g0⟩ ⟨f1, g1⟩ => ⟨f0 ≫ f1, g0 ≫ g1⟩
+  bi_compat_id := by
+    intros
+    trivial
+  bi_compat_comp := by
+    intros
+    trivial
   pre_id := by
     intros
-    ext
-    . rw [comp_fst, id_fst, 𝓐.pre_id]
-    . rw [comp_snd, id_snd, 𝓑.pre_id]
+    simp only [𝓐.pre_id, 𝓑.pre_id]
   post_id := by
     intros
-    ext
-    . rw [comp_fst, id_fst, 𝓐.post_id]
-    . rw [comp_snd, id_snd, 𝓑.post_id]
+    simp only [𝓐.post_id, 𝓑.post_id]
   comp_assoc := by
     intros
-    ext
-    . simp only [comp_fst, 𝓐.comp_assoc]
-    . simp only [comp_snd, 𝓑.comp_assoc]
+    simp only [𝓐.comp_assoc, 𝓑.comp_assoc]
 end
 
 end BiMorphism
