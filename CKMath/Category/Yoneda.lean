@@ -6,20 +6,19 @@ namespace Category
 
 variable [𝓐 : Category (O := OA) A]
 
-/-- Represents the natural hom functor, mapping morphisms to functions between hom-sets. -/
-def Hom (x : OA) : A ⥤ Fun where
-  obj y := A x y
-  map {a b} (f : A a b) := fun (g : A x a) ↦ g ≫ f
+/-- Represents the hom functor as an explicit bifunctor. -/
+def Hom : (Op A) ⨂ A ⥤ Fun where
+  obj := fun ⟨x, y⟩ ↦ A x y
+  map := fun ⟨f, g⟩ ↦ fun φ ↦ f.unop ≫ φ ≫ g
   map_id := by
     intros
-    simp only [𝓐.post_id]
+    simp only [Op.unop_id_eq_id, Category.pre_id, Category.post_id]
     rfl
   map_comp := by
-    intros a b f c g
-    funext φ
-    calc
-      _ = (φ ≫ f) ≫ g := by rw [comp_assoc]
-      _ = _ := by trivial
+    intro x y f z g
+    funext ψ
+    rw [Fun.comp_apply]
+    simp only [Op.unop_comp_eq_comp_unop, Category.comp_assoc]
 
 
 end Category

@@ -4,6 +4,8 @@
 
 import CKMath.Category.Definition
 
+namespace Category
+
 /-- A synonym for `->`, acting as a carrier for the standard category of Sets.
 
 Think of `Fun A B` as analogous to the textbook "Set(A, B)".
@@ -23,7 +25,13 @@ instance Fun.category : Category Fun where
   post_id := by intros ; rfl
   comp_assoc := by intros ; rfl
 
-namespace Category
+namespace Fun
+
+@[simp]
+def comp_apply {f : Fun A B} {g : Fun B C} {x : A} : (f ≫ g) x = g (f x) := by
+  trivial
+
+end Fun
 
 section product
 
