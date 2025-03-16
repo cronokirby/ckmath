@@ -47,7 +47,7 @@ where
   fst : A X.fst Y.fst
   snd : B X.snd Y.snd
 
-infixr:90 " ⨂ " => BiMorphism
+infixr:100 " ⨂ " => BiMorphism
 
 /-- A category structure on `A ⨂ B` which is compatible with the underlying categories.
 

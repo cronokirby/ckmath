@@ -85,6 +85,32 @@ def curry : A ⥤ (Nat B C) where
     simp only [BiFunctor.map_comp, Category.Struct.comp, Nat.comp, 𝓑.post_id]
 end
 
+section
+
+/-- There's a natural bifunctor that "evaluates" a functor on an object.
+
+Objectwise, this maps a functor and an object to the functor evaluated at that point.
+
+Mapwise, this maps a natural transformation and a function to the naturality square formed
+at that function, using that transformation.
+-/
+def eval : (Nat A B) ⨂ A ⥤ B where
+  obj := fun ⟨F, a⟩ => F.obj a
+  map := by
+    intro ⟨F, x⟩ ⟨G, y⟩ ⟨φ, f⟩
+    exact (φ.on x ≫ G.map f)
+  map_id := by
+    intros
+    simp only [Functor.map_id, Category.Struct.id, Nat.id_on, 𝓑.post_id]
+  map_comp := by
+    intro ⟨_, x⟩ ⟨G, y⟩ ⟨β, f⟩ ⟨H, _⟩ ⟨γ, g⟩
+    calc
+      _ = β.on x ≫ (γ.on x ≫ H.map f) ≫ H.map g := by
+        simp only [Category.comp_assoc, Nat.comp_on, H.map_comp]
+      _ = (β.on x ≫ G.map f) ≫ (γ.on y ≫ H.map g) := by
+        simp only [γ.natural, Category.comp_assoc]
+end
+
 end BiFunctor
 
 end Category
