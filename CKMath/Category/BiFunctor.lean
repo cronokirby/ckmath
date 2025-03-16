@@ -19,6 +19,16 @@ def map_id (F : (A ⨂ B) ⥤ C) : F.map ⟨𝓐.id, 𝓑.id⟩ = @𝓒.id (F.ob
     exact F.map_id
   rw [𝓐x𝓑.bi_compat_id]
 
+/-- A bifunctor acts on a pair of composed functions in the natural way. -/
+def map_comp
+  (F : (A ⨂ B) ⥤ C) :
+  F.map ⟨f0 ≫ f1, g0 ≫ g1⟩ =
+  F.map ⟨f0, g0⟩ ≫ F.map ⟨f1, g1⟩ := by
+    suffices 𝓐x𝓑.comp ⟨f0, g0⟩ ⟨f1, g1⟩ = ⟨f0 ≫ f1, g0 ≫ g1⟩ by
+      rw [←this]
+      exact F.map_comp
+    rw [𝓐x𝓑.bi_compat_comp]
+
 end BiFunctor
 
 end Category
