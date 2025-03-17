@@ -144,6 +144,16 @@ variable {B : OB → OB → Sort v_B}
 variable [𝓐 : Category A]
 variable [𝓑 : Category B]
 
+/-- Two functors that are equal are certainly isomorphic.
+
+This turns out to be useful, because we have on-the-nose equality for
+equations involving the identity functor, but want to work with isomorphisms
+instead, usually.
+-/
+def from_eq {F : A ⥤ B} {G : A ⥤ B} (h_eq : F = G) : F ≅ G := by
+  rw [h_eq]
+  exact Iso.id
+
 /-- Construct a natural isomorphism from a transformation and a bundle of inverses.
 
 The key proof involved here is that naturality of the bundle of inverses follows simply

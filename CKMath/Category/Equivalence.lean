@@ -21,4 +21,21 @@ where
 
 infixr:82 " ≅ " => Equivalence
 
+namespace Equivalence
+
+section
+
+variable {A : OA → OA → Sort v_A} [Category A]
+
+/-- Any category is equivalent to itself. -/
+def id : Equivalence A A where
+  fwd := Functor.id
+  bwd := Functor.id
+  fwd_bwd_iso_id := NatIso.from_eq Functor.post_id
+  bwd_fwd_iso_id := NatIso.from_eq Functor.post_id
+
+end
+
+end Equivalence
+
 end Category
