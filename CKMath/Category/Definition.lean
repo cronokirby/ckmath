@@ -22,3 +22,17 @@ class Category {O : Sort u} (Mor : O → O → Sort v) extends @Category.Struct 
   pre_id : id ≫ f = f
   post_id : f ≫ id = f
   comp_assoc {f : Mor a b} {g : Mor b c} {h : Mor c d} : (f ≫ g) ≫ h = f ≫ (g ≫ h)
+
+section
+
+variable {A : OA → OA → Sort v_A} [Category.Struct A]
+
+/-- We provide an instance of transitivity for categories.
+
+This is useful because some relations of interest form categories.
+E.g. isomorphisms, equivalences, etc.
+-/
+instance Category.Struct.trans : Trans A A A where
+  trans := comp
+
+end
