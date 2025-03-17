@@ -249,6 +249,21 @@ theorem hcomp_vcomp_is_vcomp_hcomp : (α0 ≫ α1).hcomp (β0 ≫ β1) = (α0.hc
 
 end
 
+/-- Composing two identity transformations horizontally makes an identity. -/
+def hcomp_id_id : (Nat.id (F := F0)).hcomp (Nat.id (F := G0)) = Nat.id := by
+  rw [Nat.eq_iff_on_eq]
+  intros
+  simp only [
+    hcomp,
+    hcomp_post_pre,
+    Nat.comp_on,
+    whisker_post_on,
+    whisker_pre_on,
+    Nat.id_on,
+    Functor.map_id,
+    Category.post_id
+  ]
+
 end Nat
 
 end hcomp

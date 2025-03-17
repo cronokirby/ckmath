@@ -195,7 +195,8 @@ def from_inverse
     }
   }
 
-def comp
+/-- Natural isomorphisms have a corresponding notion of horizontal composition. -/
+def hcomp
   {F0 F1 : A ⥤ B}
   {G0 G1 : B ⥤ C}
   (h_F : F0 ≅ F1)
@@ -208,8 +209,12 @@ def comp
         rw [←Nat.hcomp_vcomp_is_vcomp_hcomp]
         rw [h_F.inv.inv_pre]
         rw [h_G.inv.inv_pre]
-        sorry
-      inv_post := sorry
+        exact Nat.hcomp_id_id
+      inv_post := by
+        rw [←Nat.hcomp_vcomp_is_vcomp_hcomp]
+        rw [h_F.inv.inv_post]
+        rw [h_G.inv.inv_post]
+        exact Nat.hcomp_id_id
     }
 
 
