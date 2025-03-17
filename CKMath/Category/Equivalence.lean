@@ -65,6 +65,16 @@ def comp (h0 : A ≈ B) (h1 : B ≈ C) : A ≈ C := {
     _ ≅ Functor.id := h1.bwd_fwd_iso_id
 }
 
+/-- An equivalence between categories yields an equivalence in the other direction. -/
+def symm (h : A ≈ B) : B ≈ A where
+  fwd := h.bwd
+  bwd := h.fwd
+  fwd_bwd_iso_id := h.bwd_fwd_iso_id
+  bwd_fwd_iso_id := h.fwd_bwd_iso_id
+
+@[simp]
+def symm_symm_eq (h : A ≈ B) : h.symm.symm = h := by rfl
+
 end
 
 end Equivalence
