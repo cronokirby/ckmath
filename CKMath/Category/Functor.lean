@@ -47,7 +47,7 @@ def comp (F : A ⥤ B) (G : B ⥤ C) : A ⥤ C where
   map_id := by simp [F.map_id, G.map_id]
   map_comp := by simp [F.map_comp, G.map_comp]
 
-infixr:80 " ⋙ " => Functor.comp
+infixr:85 " ⋙ " => Functor.comp
 
 @[simp]
 def pre_id {F : A ⥤ B} : id ⋙ F = F := by trivial

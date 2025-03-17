@@ -141,8 +141,10 @@ namespace NatIso
 
 variable {A : OA → OA → Sort v_A}
 variable {B : OB → OB → Sort v_B}
+variable {C : OC → OC → Sort v_C}
 variable [𝓐 : Category A]
 variable [𝓑 : Category B]
+variable [𝓒 : Category C]
 
 /-- Two functors that are equal are certainly isomorphic.
 
@@ -192,6 +194,25 @@ def from_inverse
         exact Nat.id_on
     }
   }
+
+def comp
+  {F0 F1 : A ⥤ B}
+  {G0 G1 : B ⥤ C}
+  (h_F : F0 ≅ F1)
+  (h_G : G0 ≅ G1) :
+  F0 ⋙ G0 ≅ F1 ⋙ G1 where
+    out := h_F.out.hcomp h_G.out
+    inv := {
+      inv := h_F.inv.inv.hcomp h_G.inv.inv
+      inv_pre := by
+        rw [←Nat.hcomp_vcomp_is_vcomp_hcomp]
+        rw [h_F.inv.inv_pre]
+        rw [h_G.inv.inv_pre]
+        sorry
+      inv_post := sorry
+    }
+
+
 end NatIso
 
 end Category

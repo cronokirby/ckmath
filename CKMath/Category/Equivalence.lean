@@ -26,13 +26,23 @@ namespace Equivalence
 section
 
 variable {A : OA → OA → Sort v_A} [Category A]
+variable {B : OB → OB → Sort v_B} [Category B]
+variable {C : OC → OC → Sort v_C} [Category C]
 
 /-- Any category is equivalent to itself. -/
-def id : Equivalence A A where
+def id : A ≅ A where
   fwd := Functor.id
   bwd := Functor.id
   fwd_bwd_iso_id := NatIso.from_eq Functor.post_id
   bwd_fwd_iso_id := NatIso.from_eq Functor.post_id
+
+def comp (h0 : A ≅ B) (h1 : B ≅ C) : A ≅ C where
+  fwd := h0.fwd ⋙ h1.fwd
+  bwd := h1.bwd ⋙ h0.bwd
+  fwd_bwd_iso_id := by
+    sorry
+  bwd_fwd_iso_id := by
+    sorry
 
 end
 
