@@ -19,7 +19,8 @@ where
   fwd_bwd_iso_id : (fwd ⋙ bwd) ≅ Functor.id
   bwd_fwd_iso_id : (bwd ⋙ fwd) ≅ Functor.id
 
-infixr:82 " ≅ " => Equivalence
+infixr:82 " ≈ " => Equivalence
+
 
 namespace Equivalence
 
@@ -30,19 +31,39 @@ variable {B : OB → OB → Sort v_B} [Category B]
 variable {C : OC → OC → Sort v_C} [Category C]
 
 /-- Any category is equivalent to itself. -/
-def id : A ≅ A where
+def id : A ≈ A where
   fwd := Functor.id
   bwd := Functor.id
   fwd_bwd_iso_id := NatIso.from_eq Functor.post_id
   bwd_fwd_iso_id := NatIso.from_eq Functor.post_id
 
-def comp (h0 : A ≅ B) (h1 : B ≅ C) : A ≅ C where
-  fwd := h0.fwd ⋙ h1.fwd
-  bwd := h1.bwd ⋙ h0.bwd
+/-- Equivalences between categories compose. -/
+def comp (h0 : A ≈ B) (h1 : B ≈ C) : A ≈ C := {
+  fwd := h0.fwd ⋙ h1.fwd,
+  bwd := h1.bwd ⋙ h0.bwd,
   fwd_bwd_iso_id := by
-    sorry
+    calc
+    _ ≅ h0.fwd ⋙ (h1.fwd ⋙ h1.bwd) ⋙ h0.bwd := NatIso.from_eq rfl
+    _ ≅ h0.fwd ⋙ Functor.id ⋙ h0.bwd := by
+      apply NatIso.hcomp
+      . exact NatIso.from_eq rfl
+      . apply NatIso.hcomp
+        . exact h1.fwd_bwd_iso_id
+        . exact NatIso.from_eq rfl
+    _ ≅ h0.fwd ⋙ h0.bwd := NatIso.from_eq rfl
+    _ ≅ Functor.id := h0.fwd_bwd_iso_id
   bwd_fwd_iso_id := by
-    sorry
+    calc
+    _ ≅ h1.bwd ⋙ (h0.bwd ⋙ h0.fwd) ⋙ h1.fwd := NatIso.from_eq rfl
+    _ ≅ h1.bwd ⋙ Functor.id ⋙ h1.fwd := by
+      apply NatIso.hcomp
+      . exact NatIso.from_eq rfl
+      . apply NatIso.hcomp
+        . exact h0.bwd_fwd_iso_id
+        . exact NatIso.from_eq rfl
+    _ ≅ h1.bwd ⋙ h1.fwd := NatIso.from_eq rfl
+    _ ≅ Functor.id := h1.bwd_fwd_iso_id
+}
 
 end
 
