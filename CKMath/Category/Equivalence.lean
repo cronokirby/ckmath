@@ -75,6 +75,20 @@ def symm (h : A ≈ B) : B ≈ A where
 @[simp]
 def symm_symm_eq (h : A ≈ B) : h.symm.symm = h := by rfl
 
+/-- Apply an equivalence to the input of a functor category. -/
+def transport_left (h : A ≈ B) : Nat A C ≈ Nat B C where
+  fwd := whisker_post h.bwd
+  bwd := whisker_post h.fwd
+  fwd_bwd_iso_id := sorry
+  bwd_fwd_iso_id := sorry
+
+/-- Apply an equivalence to the output of a functor category. -/
+def transport_right (h : A ≈ B) : Nat C A ≈ Nat C B where
+  fwd := whisker_pre h.fwd
+  bwd := whisker_pre h.bwd
+  fwd_bwd_iso_id := sorry
+  bwd_fwd_iso_id := sorry
+
 end
 
 end Equivalence
