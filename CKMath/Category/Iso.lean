@@ -92,6 +92,11 @@ def id : Iso A x x where
     inv_post := 𝓐.post_id
   }
 
+/-- We can construct an isomorphism from an equality. -/
+def from_eq {x y} (h : x = y) : Iso A x y := by
+  rw [h]
+  exact Iso.id
+
 /-- We can compose isomorphisms as well. -/
 def comp (f : Iso A X Y) (g : Iso A Y Z) : Iso A X Z where
   out := f.out ≫ g.out
@@ -152,9 +157,8 @@ This turns out to be useful, because we have on-the-nose equality for
 equations involving the identity functor, but want to work with isomorphisms
 instead, usually.
 -/
-def from_eq {F : A ⥤ B} {G : A ⥤ B} (h_eq : F = G) : F ≅ G := by
-  rw [h_eq]
-  exact Iso.id
+def from_eq {F : A ⥤ B} {G : A ⥤ B} (h_eq : F = G) : F ≅ G :=
+  Iso.from_eq h_eq
 
 /-- Construct a natural isomorphism from a transformation and a bundle of inverses.
 
