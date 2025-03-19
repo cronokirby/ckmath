@@ -83,9 +83,42 @@ def curry : A ⥤ (Nat B C) where
     rw [Nat.eq_iff_on_eq]
     intro b
     simp only [BiFunctor.map_comp, Category.Struct.comp, Nat.comp, 𝓑.post_id]
+
+/-- Convert a curried bifunctor back to its original form. -/
+def uncurry (F : A ⥤ (Nat B C)) : A ⨂ B ⥤ C where
+  obj := fun x => (F.obj x.fst).obj x.snd
+  map {x y} := fun ⟨f, g⟩ => (F.map f).on x.snd ≫ (F.obj y.fst).map g
+  map_id := by
+    intros
+    simp only [
+      BiCategory.bi_compat_id,
+      Functor.map_id,
+      Struct.id,
+      Nat.id_on,
+      Category.post_id
+    ]
+  map_comp := by
+    intro x y f z g
+    calc
+      _ =
+      (F.map f.fst).on x.snd ≫
+      ((F.map g.fst).on x.snd ≫ (F.obj z.fst).map f.snd) ≫
+      (F.obj z.fst).map g.snd := by
+        simp only [
+          BiCategory.bi_compat_comp,
+          Functor.map_comp,
+          Nat.comp_on,
+          Category.comp_assoc
+        ]
+      _ =
+      ((F.map f.fst).on x.snd ≫ (F.obj y.fst).map f.snd) ≫
+      ((F.map g.fst).on y.snd ≫ (F.obj z.fst).map g.snd) := by
+        rw [Nat.natural]
+        simp only [Category.comp_assoc]
+
 end
 
-section
+ section
 
 /-- There's a natural bifunctor that "evaluates" a functor on an object.
 
